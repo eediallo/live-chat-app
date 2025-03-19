@@ -4,6 +4,10 @@ const sendMsgBtn = document.querySelector("#send-msg-btn");
 
 const baseUrl = "http://localhost:3000";
 
+const state = {
+  messages: [],
+};
+
 async function fetchMessages() {
   try {
     const res = await fetch(`${baseUrl}/api/v1/messages`);
@@ -11,7 +15,7 @@ async function fetchMessages() {
       throw new Error(`Failed to fetch message: ${res.status}`);
     }
     const { messages } = await res.json();
-    return messages;
+    state.messages = messages;
   } catch (err) {
     console.error(err);
   }
@@ -57,8 +61,8 @@ sendMsgBtn.addEventListener("click", async (e) => {
 });
 
 async function main() {
-  const messages = await fetchMessages();
-  render(messages);
+  await fetchMessages();
+  render(state.messages);
 }
 
 window.onload = main;
