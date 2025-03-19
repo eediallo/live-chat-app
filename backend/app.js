@@ -16,15 +16,6 @@ app.use(express.static(publicDir)); // serve static files
 
 app.use("/api/v1/messages", messageRouter);
 
-//routes
-app.get("/", (req, res) => {
-  res
-    .status(200)
-    .send(
-      '<h1>Welcome to our live chat application</h1><a href="/api/v1/messages">Go to messages</a>'
-    );
-});
-
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
