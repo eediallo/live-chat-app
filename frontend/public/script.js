@@ -1,8 +1,8 @@
-const baseUrl = "http://localhost:3000";
+const baseUrl = "http://localhost:3000/api/v1/messages";
 
 async function fetchMessages() {
   try {
-    const res = await fetch(`${baseUrl}/api/v1/messages`);
+    const res = await fetch(`${baseUrl}`);
     if (!res.ok) {
       throw new Error(`Failed to fetch message: ${res.status}`);
     }
