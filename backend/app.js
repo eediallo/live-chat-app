@@ -15,12 +15,18 @@ app.get("/", (req, res) => {
   res
     .status(200)
     .send(
-      '<h1>Welcome to our live chat application</h1><a href="/api/messages">Go to messages</a>'
+      '<h1>Welcome to our live chat application</h1><a href="/api/v1/messages">Go to messages</a>'
     );
 });
 
-app.get("/api/messages", (req, res) => {
+// get all messages
+app.get("/api/v1/messages", (req, res) => {
   res.status(200).json({ msg: "Messages here" });
+});
+
+//send a message
+app.post("/api/v1/messages/send-message", (req, res) => {
+  res.status(201).json(req.body);
 });
 
 const start = async () => {
