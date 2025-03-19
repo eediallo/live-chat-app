@@ -1,7 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./db/db.js";
-import { messageRouter } from "./routes/message.js";
+import { messageRouter } from "./routes/messages.js";
+import { sendMessage } from "./controllers/sendMessage.js";
 dotenv.config();
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json()); //parse json
 //middleware
 app.use(express.static(publicDir)); // serve static files
 
+app.post("/", sendMessage);
 app.use("/api/v1/messages", messageRouter);
 
 const start = async () => {
