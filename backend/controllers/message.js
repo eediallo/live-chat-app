@@ -23,3 +23,13 @@ export const sendMessage = async (req, res) => {
     });
   }
 };
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { id: msgID } = req.params;
+    const message = await Message.findOneAndDelete({ _id: msgID });
+    res.status(200).json({ success: true, message });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Failed to delete message" });
+  }
+};
