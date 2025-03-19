@@ -28,7 +28,6 @@ function render(messages) {
 
 async function main() {
   const messages = await fetchMessages();
-  console.log(messages);
   render(messages);
 }
 
