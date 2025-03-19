@@ -29,8 +29,6 @@ async function sendMessage(textMessage, userName) {
     if (!resp.ok) {
       throw new Error(`Failed to send message: ${resp.status}`);
     }
-    const data = await resp.json();
-    console.log(data);
   } catch (err) {
     console.error(err.msg);
   }
@@ -53,11 +51,9 @@ function render(messages) {
 sendMsgBtn.addEventListener("click", async (e) => {
   e.preventDefault();
   const textMessage = textMessageInput.value.trim();
-  console.log(textMessage)
   const user = userInput.value.trim();
-  console.log(user)
-  console.log("sending message.....");
   await sendMessage(textMessage, user);
+  (textMessageInput.value = ""), (userInput.value = "");
 });
 
 async function main() {
