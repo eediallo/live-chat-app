@@ -16,11 +16,8 @@ async function fetchMessages() {
 function createMessageCard(message) {
   const messageSection = document.createElement("section");
   const textMessage = document.createElement("p");
-  textMessage.textContent = message.text;
-  const user = document.createElement("p");
-  user.textContent = message.user;
-
-  messageSection.append(textMessage, user);
+  textMessage.innerHTML = `<b id="user">${message.user}</b>: ${message.text}`;
+  messageSection.append(textMessage);
   return messageSection;
 }
 
