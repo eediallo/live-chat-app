@@ -33,3 +33,18 @@ export const deleteMessage = async (req, res) => {
     res.status(500).json({ success: false, msg: "Failed to delete message" });
   }
 };
+
+export const updateMessage = async (req, res) => {
+  try {
+    const { id: msgID } = req.params;
+    const { text } = req.body;
+    const updatedMessage = await Message.findByIdAndUpdate(
+      msgID,
+      { text },
+      { new: true, runValidators: true }
+    );
+    res.status(200).json({success: true, updatedMessage})
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "Failed to edit message" });
+  }
+};
