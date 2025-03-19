@@ -1,14 +1,25 @@
 import { Message } from "../models/message.js";
 
 export const getAllMessages = async (req, res) => {
+  const { since } = req.query;
+
   try {
-    const messages = await Message.find({});
-    if (messages.length === 0) {
-      return res.status(404).json({ success: false, msg: "No message found" });
+    let queryObject = {};
+    if (since) {
+      queryObject = { createdAt: { $lt: new Date(since) } };
     }
-    res.status(200).json({ success: true, messages });
+
+    const result = Message.find(queryObject);
+    result.sort("createdAt");
+
+    const messages = await result;
+
+    if (messages.length === 0) {
+      return res.status(200).json({ success: true, messages: [] }); // Return an empty array instead of a 404
+    }
+    res.status(200).json({ success: true, messages, nHits: messages.length });
   } catch (err) {
-    res.status(404).json({ success: false, msg: err });
+    res.status(500).json({ success: false, msg: err.message });
   }
 };
 
@@ -31,7 +42,7 @@ export const updateMessage = async (req, res) => {
       { text },
       { new: true, runValidators: true }
     );
-    res.status(200).json({success: true, updatedMessage})
+    res.status(200).json({ success: true, updatedMessage });
   } catch (err) {
     res.status(500).json({ success: false, msg: "Failed to edit message" });
   }
