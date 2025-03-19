@@ -1,0 +1,6 @@
+{
+    "name": "live-chat-app",
+    "dependencies": {
+        "express": "^4.21.2"
+    }
+}
