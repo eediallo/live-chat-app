@@ -14,12 +14,27 @@ async function fetchMessages() {
     if (!res.ok) {
       throw new Error(`Failed to fetch message: ${res.status}`);
     }
+
     const { messages } = await res.json();
-    state.messages = messages;
+    state.messages = messages; // update messages in state
   } catch (err) {
     console.error(err);
   }
 }
+
+const keepFetchingMessages = async () => {
+  const lastMessageTime =
+    state.messages.length > 0
+      ? state.messages[state.messages.length - 1].timestamp
+      : null;
+  const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
+  const url = `${server}/messages${queryString}`;
+  const rawResponse = await fetch(url);
+  const response = await rawResponse.json();
+  state.messages.push(...response);
+  render();
+  setTimeout(keepFetchingMessages, 100);
+};
 
 async function sendMessage(textMessage, userName) {
   try {
