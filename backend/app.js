@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { connectDB } from "./db/db.js";
 import { messageRouter } from "./routes/messages.js";
 import { sendMessage } from "./controllers/sendMessage.js";
@@ -11,8 +12,9 @@ const port = process.env.PORT || 3000;
 
 const publicDir = new URL("../frontend/public", import.meta.url).pathname;
 
-app.use(express.json()); //parse json
 //middleware
+app.use(cors()); // use cors
+app.use(express.json()); //parse json
 app.use(express.static(publicDir)); // serve static files
 
 app.post("/", sendMessage);
