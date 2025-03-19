@@ -11,6 +11,17 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 //routes
+app.get("/", (req, res) => {
+  res
+    .status(200)
+    .send(
+      '<h1>Welcome to our live chat application</h1><a href="/api/messages">Go to messages</a>'
+    );
+});
+
+app.get("/api/messages", (req, res) => {
+  res.status(200).json({ msg: "Messages here" });
+});
 
 const start = async () => {
   try {
