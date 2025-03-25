@@ -1,7 +1,10 @@
+import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 
 export const createMessage = async (req, res) => {
-  res.send("Create message route");
+  req.body.sender = req.user.userID;
+  const message = await Message.create(req.body);
+  res.status(StatusCodes.CREATED).json({ message });
 };
 
 export const getAllMessages = async (req, res) => {
