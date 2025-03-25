@@ -39,9 +39,13 @@ userSchema.pre("save", async function () {
 
 // Create a JWT token
 userSchema.methods.createJWT = function () {
-  return jsonwebtoken.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES,
-  });
+  return jsonwebtoken.sign(
+    { id: this._id, name: this.name },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_EXPIRES,
+    }
+  );
 };
 
 // Match the password
