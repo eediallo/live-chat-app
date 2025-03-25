@@ -31,17 +31,34 @@ export const getAllMessages = async (req, res) => {
 };
 
 export const getMessage = async (req, res) => {
-  res.send("Get message route");
+  const {
+    user: { userID },
+    params: { id: msgID },
+  } = req;
+  const message = await Message.findOne({ _id: msgID, sender: userID });
+  if (!message) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ msg: `No message with Id ${msgID} found` });
+  }
+  res.status(StatusCodes.OK).json({ message });
 };
 
 export const deleteMessage = async (req, res) => {
-  try {
-    const { id: msgID } = req.params;
-    const message = await Message.findOneAndDelete({ _id: msgID });
-    res.status(200).json({ success: true, message });
-  } catch (err) {
-    res.status(500).json({ success: false, msg: "Failed to delete message" });
+  const {
+    user: { userID },
+    params: { id: msgID },
+  } = req;
+  const message = await Message.findOneAndDelete({
+    _id: msgID,
+    sender: userID,
+  });
+  if (!message) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ msg: `No message with Id ${msgID} found` });
   }
+  res.status(StatusCodes.OK).send();
 };
 
 export const updateMessage = async (req, res) => {
