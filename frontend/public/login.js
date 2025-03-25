@@ -1,7 +1,6 @@
 const endpoint = "http://localhost:3000/api/v1/auth/login";
 
 const loginBtn = document.getElementById("login-btn");
-console.log(loginBtn);
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 
