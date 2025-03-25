@@ -1,5 +1,9 @@
 import { Message } from "../models/message.js";
 
+export const createMessage = async (req, res) => {
+  res.send("Create message route");
+};
+
 export const getAllMessages = async (req, res) => {
   const { since } = req.query;
 
@@ -21,6 +25,10 @@ export const getAllMessages = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message });
   }
+};
+
+export const getMessage = async (req, res) => {
+  res.send("Get message route");
 };
 
 export const deleteMessage = async (req, res) => {
