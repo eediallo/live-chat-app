@@ -1,4 +1,4 @@
-import { removeToken } from "./data.js";
+import { removeToken } from "./storage.js";
 const logoutBtn = document.querySelector("#logout-btn");
 
 function logout() {
