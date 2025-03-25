@@ -1,8 +1,28 @@
 import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 
+export const getAllMessagesForAllUsers = async (req, res) => {
+  try {
+    const messages = await Message.find().sort("createdAt");
+
+    if (messages.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "No messages found" });
+    }
+
+    res.status(StatusCodes.OK).json({ messages });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Failed to fetch messages" });
+  }
+};
+
 export const createMessage = async (req, res) => {
-  req.body.sender = req.user.userID;
+  const { userID, name } = req.user;
+  req.body.sender = { id: userID, name };
   const message = await Message.create(req.body);
   res.status(StatusCodes.CREATED).json({ message });
 };
