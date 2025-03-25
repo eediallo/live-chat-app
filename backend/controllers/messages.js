@@ -24,7 +24,7 @@ export const createMessage = async (req, res) => {
   const { userID, name } = req.user;
   req.body.sender = { id: userID, name };
   const message = await Message.create(req.body);
-  res.status(StatusCodes.CREATED).json({ message });
+  res.status(StatusCodes.CREATED).json(message);
 };
 
 export const getAllMessages = async (req, res) => {
@@ -40,7 +40,7 @@ export const getAllMessages = async (req, res) => {
       .status(StatusCodes.NOT_FOUND)
       .json({ msg: "No messages found for this user" });
   }
-  res.status(StatusCodes.OK).json({ messages });
+  res.status(StatusCodes.OK).json(messages);
 };
 
 export const getMessage = async (req, res) => {
@@ -90,5 +90,5 @@ export const updateMessage = async (req, res) => {
       .status(StatusCodes.NOT_FOUND)
       .json({ msg: `No message with Id ${msgID} found` });
   }
-  res.status(StatusCodes.OK).json({ updatedMessage });
+  res.status(StatusCodes.OK).json(updateMessage);
 };
