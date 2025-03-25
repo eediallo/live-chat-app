@@ -24,7 +24,7 @@ const register = async (e) => {
   if (response.ok) {
     alert("User registered successfully");
     localStorage.setItem("token", data.token);
-    window.location.href = "/api/v1/messages";
+    window.location.href = "/login.html";
   } else {
     document.getElementById("msg").innerText = data.msg;
   }
