@@ -18,7 +18,7 @@ app.use(cors()); // use cors
 app.use(express.json()); //parse json
 app.use(express.static(publicDir)); // serve static files
 
-app.use("/api/v1/messages", authenticateUser, messageRouter);
+app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/auth", authRouter);
 
 const start = async () => {
