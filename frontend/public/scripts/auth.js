@@ -1,5 +1,7 @@
+import { getToken } from "./storage.js";
+
 export function isAuthenticated() {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   if (!token) return false;
 
   try {
