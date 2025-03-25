@@ -1,20 +1,19 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema({
-  text: {
-    type: String,
-    trim: true,
-    require: [true, "Text message must be provided"],
+const messageSchema = new mongoose.Schema(
+  {
+    message: {
+      type: String,
+      trim: true,
+      require: [true, "Text message must be provided"],
+    },
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Sender must be provided"],
+    },
   },
-  user: {
-    type: String,
-    trim: true,
-    require: [true, "User must be provided"],
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
-});
+  { timestamps: true }
+);
 
 export const Message = mongoose.model("Message", messageSchema);
