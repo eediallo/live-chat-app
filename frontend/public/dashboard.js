@@ -1,4 +1,9 @@
 import { isAuthenticated } from "./auth.js";
+import { getToken } from "./data.js";
+const sendMsgBtn = document.querySelector("#send-msg-btn");
+const messageInput = document.querySelector("#message-input");
+const logoutBtn = document.querySelector("#logout-btn");
+console.log(logoutBtn);
 
 const baseUrl = "http://localhost:3000";
 const state = {
@@ -18,6 +23,42 @@ async function fetchMessages() {
     console.error(err);
   }
 }
+
+async function sendMessage(message) {
+  try {
+    const token = getToken();
+    const res = await fetch(`${baseUrl}/api/v1/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(message),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to send message: ${res.status}`);
+    }
+
+    const newMessage = await res.json();
+    state.messages.push(newMessage); // update messages in state
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function sendMessageHandler() {
+  const message = messageInput.value;
+  if (!message) {
+    return;
+  }
+  await sendMessage({ message });
+  console.log(state.messages);
+  render(state.messages);
+  messageInput.value = "";
+}
+
+sendMsgBtn.addEventListener("click", sendMessageHandler);
 
 function createMessageCard(message) {
   const messageSection = document.createElement("section");
