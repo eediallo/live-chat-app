@@ -5,13 +5,16 @@ import {
   getMessage,
   createMessage,
   getAllMessages,
+  getAllMessagesForAllUsers,
 } from "../controllers/messages.js";
+import { authenticateUser } from "../middleware/auth.js";
 
 const messageRouter = express.Router();
 
-messageRouter.get("/", getAllMessages);
-messageRouter.post("/", createMessage);
-messageRouter.get("/:id", getMessage);
-messageRouter.patch("/:id", updateMessage);
-messageRouter.delete("/:id", deleteMessage);
+messageRouter.get("/all", getAllMessagesForAllUsers);
+messageRouter.get("/", authenticateUser, getAllMessages);
+messageRouter.post("/", authenticateUser, createMessage);
+messageRouter.get("/:id", authenticateUser, getMessage);
+messageRouter.patch("/:id", authenticateUser, updateMessage);
+messageRouter.delete("/:id", authenticateUser, deleteMessage);
 export { messageRouter };
