@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./db/db.js";
 import { messageRouter } from "./routes/messages.js";
-import { sendMessage } from "./controllers/sendMessage.js";
+import { authRouter } from "./routes/auth.js";
 dotenv.config();
 
 const app = express();
@@ -17,8 +17,8 @@ app.use(cors()); // use cors
 app.use(express.json()); //parse json
 app.use(express.static(publicDir)); // serve static files
 
-app.post("/", sendMessage);
 app.use("/api/v1/messages", messageRouter);
+app.use("/api/v1/auth", authRouter)
 
 const start = async () => {
   try {
