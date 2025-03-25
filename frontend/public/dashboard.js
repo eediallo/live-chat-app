@@ -1,9 +1,7 @@
 import { isAuthenticated } from "./auth.js";
-import { getToken } from "./data.js";
+import { getToken } from "./storage.js";
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
-const logoutBtn = document.querySelector("#logout-btn");
-console.log(logoutBtn);
 
 const baseUrl = "http://localhost:3000";
 const state = {
