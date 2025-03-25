@@ -1,3 +1,5 @@
+import { setToken } from "./storage.js";
+
 const endpoint = "http://localhost:3000/api/v1/auth/register";
 
 const emailInput = document.getElementById("email");
@@ -25,7 +27,7 @@ const register = async (e) => {
 
     if (response.ok) {
       alert("User registered successfully");
-      localStorage.setItem("token", data.token);
+      setToken(data.token);
       window.location.href = "/login.html";
     } else {
       document.getElementById("msg").innerText = data.msg;
