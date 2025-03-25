@@ -1,10 +1,10 @@
 import express from "express";
 import {
-  getAllMessages,
   deleteMessage,
   updateMessage,
   getMessage,
   createMessage,
+  getAllMessages,
 } from "../controllers/messages.js";
 
 const messageRouter = express.Router();
