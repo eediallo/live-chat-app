@@ -22,7 +22,7 @@ const login = async (e) => {
     if (response.ok) {
       alert("User logged in successfully");
       localStorage.setItem("token", data.token);
-      window.location.href = "/api/v1/messages";
+      window.location.href = "/dashboard.html";
     } else {
       document.getElementById("msg").innerText = data.msg;
     }
