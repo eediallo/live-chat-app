@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <script type="module" src="./dashboard.js" defer></script>
+    <script type="module" src="./logout.js"></script>
     <style>
         .message {
             border: 1px solid #ccc;
@@ -22,5 +23,12 @@
     </style>
 </head>
 <body>
+    <h1>Welcome to our live chat app</h1>
+    <button id="logout-btn">Logout</button>
+    <div id="messages"></div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Type your message here">
+        <button id="send-msg-btn" type="submit">Send</button>
+    </form>
 </body>
 </html>
