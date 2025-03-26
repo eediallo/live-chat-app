@@ -21,7 +21,7 @@ export const getAllMessagesForAllUsers = async (req, res) => {
         .json({ msg: "No messages found" });
     }
 
-    res.status(StatusCodes.OK).json({ nHits: messages.length, messages });
+    res.status(StatusCodes.OK).json({messages});
   } catch (error) {
     console.error(error);
     res

@@ -74,13 +74,34 @@ function render(messages) {
 async function loadMessages() {
   await fetchMessages();
   console.log(state.messages);
+  console.log(
+    state.messages[state.messages.length - 1].createdAt,
+    "====>last message time"
+  );
   render(state.messages);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+const keepFetchingMessages = async () => {
+  // await fetchMessages();
+  const lastMessageTime =
+    state.messages.length > 0
+      ? state.messages[state.messages.length - 1].createdAt
+      : null;
+  const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
+  const url = `${baseUrl}/api/v1/messages/all${queryString}`;
+  const rawResponse = await fetch(url);
+  const response = await rawResponse.json();
+  state.messages.push(...response.messages);
+  render(state.messages);
+  setTimeout(keepFetchingMessages, 5000);
+};
+
+function main() {
   if (!isAuthenticated()) {
     window.location.href = "/login.html";
   } else {
-    loadMessages();
+    keepFetchingMessages();
   }
-});
+}
+
+window.onload = main;
