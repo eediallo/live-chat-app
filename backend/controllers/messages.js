@@ -3,7 +3,17 @@ import { Message } from "../models/message.js";
 
 export const getAllMessagesForAllUsers = async (req, res) => {
   try {
-    const messages = await Message.find().sort("createdAt");
+    const { since } = req.query;
+    let query = {};
+
+    if (since) {
+      const sinceDate = new Date(since);
+      if (!isNaN(sinceDate)) {
+        query.createdAt = { $gte: sinceDate };
+      }
+    }
+
+    const messages = await Message.find(query).sort("createdAt");
 
     if (messages.length === 0) {
       return res
@@ -11,7 +21,7 @@ export const getAllMessagesForAllUsers = async (req, res) => {
         .json({ msg: "No messages found" });
     }
 
-    res.status(StatusCodes.OK).json({ messages });
+    res.status(StatusCodes.OK).json({ nHits: messages.length, messages });
   } catch (error) {
     console.error(error);
     res
