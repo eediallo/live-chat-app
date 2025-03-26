@@ -45,13 +45,13 @@ async function sendMessage(message) {
   }
 }
 
-async function sendMessageHandler() {
+async function sendMessageHandler(e) {
+  e.preventDefault();
   const message = messageInput.value;
   if (!message) {
     return;
   }
   await sendMessage({ message });
-  render(state.messages);
   messageInput.value = "";
 }
 
