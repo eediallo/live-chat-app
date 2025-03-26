@@ -8,19 +8,19 @@ const state = {
   messages: [],
 };
 
-async function fetchMessages() {
-  try {
-    const res = await fetch(`${baseUrl}/api/v1/messages/all`);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch message: ${res.status}`);
-    }
+// async function fetchMessages() {
+//   try {
+//     const res = await fetch(`${baseUrl}/api/v1/messages/all`);
+//     if (!res.ok) {
+//       throw new Error(`Failed to fetch message: ${res.status}`);
+//     }
 
-    const { messages } = await res.json();
-    state.messages = messages; // update messages in state
-  } catch (err) {
-    console.error(err);
-  }
-}
+//     const { messages } = await res.json();
+//     // state.messages = messages; // update messages in state
+//   } catch (err) {
+//     console.error(err);
+//   }
+// }
 
 async function sendMessage(message) {
   try {
@@ -51,7 +51,6 @@ async function sendMessageHandler() {
     return;
   }
   await sendMessage({ message });
-  console.log(state.messages);
   render(state.messages);
   messageInput.value = "";
 }
@@ -71,29 +70,40 @@ function render(messages) {
   document.querySelector("body").append(...listOfMessages);
 }
 
-async function loadMessages() {
-  await fetchMessages();
-  console.log(state.messages);
-  console.log(
-    state.messages[state.messages.length - 1].createdAt,
-    "====>last message time"
-  );
-  render(state.messages);
-}
+// async function loadMessages() {
+//   await fetchMessages();
+//   console.log(state.messages);
+//   console.log(
+//     state.messages[state.messages.length - 1].createdAt,
+//     "====>last message time"
+//   );
+//   render(state.messages);
+// }
 
 const keepFetchingMessages = async () => {
-  // await fetchMessages();
-  const lastMessageTime =
-    state.messages.length > 0
-      ? state.messages[state.messages.length - 1].createdAt
-      : null;
-  const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
-  const url = `${baseUrl}/api/v1/messages/all${queryString}`;
-  const rawResponse = await fetch(url);
-  const response = await rawResponse.json();
-  state.messages.push(...response.messages);
-  render(state.messages);
-  setTimeout(keepFetchingMessages, 5000);
+  try {
+    const lastMessageTime =
+      state.messages.length > 0
+        ? state.messages[state.messages.length - 1].createdAt
+        : null;
+    const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
+    const url = `${baseUrl}/api/v1/messages/all${queryString}`;
+    const rawResponse = await fetch(url);
+
+    if (!rawResponse.ok) {
+      throw new Error(`Failed to fetch messages: ${rawResponse.status}`);
+    }
+
+    const { messages } = await rawResponse.json();
+    if (messages.length > 0) {
+      state.messages.push(...messages);
+      render(messages); // Only render new messages
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setTimeout(keepFetchingMessages, 5000);
+  }
 };
 
 function main() {
