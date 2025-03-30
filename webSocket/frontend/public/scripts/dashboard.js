@@ -4,7 +4,7 @@ const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
 
-const baseUrl = "https://live-chat-app-4yzt.onrender.com";
+const baseUrl = "http://localhost:3000";
 const state = {
   messages: [],
 };
@@ -38,6 +38,9 @@ async function sendMessage(message) {
     if (!res.ok) {
       throw new Error(`Failed to send message: ${res.status}`);
     }
+
+    const { newMessage } = await res.json();
+    state.messages.push(newMessage); // update messages in state
   } catch (err) {
     console.error(err);
   }
@@ -65,9 +68,10 @@ function createMessageCard(message) {
   return messageSection;
 }
 
-function render() {
+function render(messages) {
+  console.log(messages);
   messageContainer.innerHTML = "";
-  const listOfMessages = state.messages.map(createMessageCard);
+  const listOfMessages = messages.map(createMessageCard);
   messageContainer.append(...listOfMessages);
 }
 
@@ -100,13 +104,13 @@ const keepFetchingMessages = async () => {
 
       if (newMessages.length > 0) {
         state.messages.push(...newMessages);
-        render();
+        render(state.messages);
       }
     }
   } catch (err) {
     console.error(err);
   } finally {
-    setTimeout(keepFetchingMessages, 100); // Continue polling
+    setTimeout(keepFetchingMessages, 5000); // Continue polling
   }
 };
 

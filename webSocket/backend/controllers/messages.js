@@ -15,29 +15,20 @@ export const getAllMessagesForAllUsers = async (req, res) => {
   }
 
   const messages = await Message.find(query).sort("createdAt");
-  if (messages.length === 0) {
-    // Note: We need to use an arrow function here, rather than just pushing `res.send` directly.
-    // This is because of handling of "this".
-    // You can read about "this" at https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
-    callbacksForNewMessages.push((value) => res.json({ value }));
-  } else {
-    res.json({ messages });
+  try {
+    if (messages.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "No messages found" });
+    }
+
+    res.status(StatusCodes.OK).json({ messages });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Failed to fetch messages" });
   }
-  // try {
-
-  //   if (messages.length === 0) {
-  //     return res
-  //       .status(StatusCodes.NOT_FOUND)
-  //       .json({ msg: "No messages found" });
-  //   }
-
-  //   res.status(StatusCodes.OK).json({ messages });
-  // } catch (error) {
-  //   console.error(error);
-  //   res
-  //     .status(StatusCodes.INTERNAL_SERVER_ERROR)
-  //     .json({ msg: "Failed to fetch messages" });
-  // }
 };
 
 export const createMessage = async (req, res) => {
