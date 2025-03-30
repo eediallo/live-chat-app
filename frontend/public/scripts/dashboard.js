@@ -61,14 +61,17 @@ sendMsgBtn.addEventListener("click", sendMessageHandler);
 function createMessageCard(message) {
   const messageSection = document.createElement("section");
   const textMessage = document.createElement("p");
-  textMessage.innerHTML = `<b id="user">${message.sender.name}</b>: ${message.message}`;
+  const timestamp = new Date(message.createdAt).toLocaleString();
+  const senderName = message.sender ? message.sender.name : "Unknown";
+  textMessage.innerHTML = `<b id="user">${senderName}</b>: ${message.message} <span class="timestamp">(${timestamp})</span>`;
   messageSection.append(textMessage);
   return messageSection;
 }
 
-function render() {
+function render(messages) {
+  console.log(messages);
   messageContainer.innerHTML = "";
-  const listOfMessages = state.messages.map(createMessageCard);
+  const listOfMessages = messages.map(createMessageCard);
   messageContainer.append(...listOfMessages);
 }
 
@@ -85,10 +88,9 @@ const keepFetchingMessages = async () => {
     if (!rawResponse.ok) {
       throw new Error(`Failed to fetch messages: ${rawResponse.status}`);
     }
-    const response = await rawResponse.json();
-    state.messages.push(...response);
-    console.log(state.messages);
-    render(); // Only render new messages
+    const { messages } = await rawResponse.json();
+    state.messages.push(...messages);
+    render(state.messages);
   } catch (err) {
     console.error(err);
   } finally {
