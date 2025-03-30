@@ -19,9 +19,9 @@ export const getAllMessagesForAllUsers = async (req, res) => {
     // Note: We need to use an arrow function here, rather than just pushing `res.send` directly.
     // This is because of handling of "this".
     // You can read about "this" at https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
-    callbacksForNewMessages.push((value) => res.send(value));
+    callbacksForNewMessages.push((value) => res.json({ value }));
   } else {
-    res.send(messages);
+    res.json({ messages });
   }
   // try {
 
@@ -50,7 +50,9 @@ export const createMessage = async (req, res) => {
     callback([message]);
   }
 
-  res.status(StatusCodes.CREATED).json({ msg: "Message created successfully", message });
+  res
+    .status(StatusCodes.CREATED)
+    .json({ msg: "Message created successfully", message });
 };
 
 export const getAllMessages = async (req, res) => {
