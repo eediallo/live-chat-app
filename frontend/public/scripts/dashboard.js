@@ -2,6 +2,7 @@ import { isAuthenticated } from "./auth.js";
 import { getToken } from "./storage.js";
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
+const messageContainer = document.querySelector("#messages-container");
 
 const baseUrl = "http://localhost:3000";
 const state = {
@@ -65,20 +66,11 @@ function createMessageCard(message) {
   return messageSection;
 }
 
-function render(messages) {
-  const listOfMessages = messages.map(createMessageCard);
-  document.querySelector("body").append(...listOfMessages);
+function render() {
+  messageContainer.innerHTML = "";
+  const listOfMessages = state.messages.map(createMessageCard);
+  messageContainer.append(...listOfMessages);
 }
-
-// async function loadMessages() {
-//   await fetchMessages();
-//   console.log(state.messages);
-//   console.log(
-//     state.messages[state.messages.length - 1].createdAt,
-//     "====>last message time"
-//   );
-//   render(state.messages);
-// }
 
 const keepFetchingMessages = async () => {
   try {
@@ -93,12 +85,10 @@ const keepFetchingMessages = async () => {
     if (!rawResponse.ok) {
       throw new Error(`Failed to fetch messages: ${rawResponse.status}`);
     }
-
-    const { messages } = await rawResponse.json();
-    if (messages.length > 0) {
-      state.messages.push(...messages);
-      render(messages); // Only render new messages
-    }
+    const response = await rawResponse.json();
+    state.messages.push(...response);
+    console.log(state.messages);
+    render(); // Only render new messages
   } catch (err) {
     console.error(err);
   } finally {
