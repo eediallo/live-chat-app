@@ -4,7 +4,7 @@ const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = "https://live-chat-app-4yzt.onrender.com";
 const state = {
   messages: [],
 };
