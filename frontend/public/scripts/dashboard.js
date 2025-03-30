@@ -4,7 +4,7 @@ const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
 
-const baseUrl = "http://localhost:3000";
+const baseUrl = "https://live-chat-app-4yzt.onrender.com";
 const state = {
   messages: [],
 };
@@ -38,9 +38,6 @@ async function sendMessage(message) {
     if (!res.ok) {
       throw new Error(`Failed to send message: ${res.status}`);
     }
-
-    const newMessage = await res.json();
-    state.messages.push(newMessage); // update messages in state
   } catch (err) {
     console.error(err);
   }
@@ -68,10 +65,9 @@ function createMessageCard(message) {
   return messageSection;
 }
 
-function render(messages) {
-  console.log(messages);
+function render() {
   messageContainer.innerHTML = "";
-  const listOfMessages = messages.map(createMessageCard);
+  const listOfMessages = state.messages.map(createMessageCard);
   messageContainer.append(...listOfMessages);
 }
 
@@ -83,18 +79,34 @@ const keepFetchingMessages = async () => {
         : null;
     const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
     const url = `${baseUrl}/api/v1/messages/all${queryString}`;
-    const rawResponse = await fetch(url);
+
+    const rawResponse = await fetch(url, {
+      method: "GET",
+      keepalive: true, // Ensures the request stays alive
+    });
 
     if (!rawResponse.ok) {
       throw new Error(`Failed to fetch messages: ${rawResponse.status}`);
     }
+
     const { messages } = await rawResponse.json();
-    state.messages.push(...messages);
-    render(state.messages);
+
+    if (messages.length > 0) {
+      // Filter only truly new messages
+      const newMessages = messages.filter(
+        (msg) =>
+          !state.messages.some((existingMsg) => existingMsg._id === msg._id)
+      );
+
+      if (newMessages.length > 0) {
+        state.messages.push(...newMessages);
+        render();
+      }
+    }
   } catch (err) {
     console.error(err);
   } finally {
-    setTimeout(keepFetchingMessages, 5000);
+    setTimeout(keepFetchingMessages, 100); // Continue polling
   }
 };
 
