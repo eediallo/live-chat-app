@@ -1,40 +1,56 @@
 import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 
+const callbacksForNewMessages = [];
+
 export const getAllMessagesForAllUsers = async (req, res) => {
-  try {
-    const { since } = req.query;
-    let query = {};
+  const { since } = req.query;
+  let query = {};
 
-    if (since) {
-      const sinceDate = new Date(since);
-      if (!isNaN(sinceDate)) {
-        query.createdAt = { $gte: sinceDate };
-      }
+  if (since) {
+    const sinceDate = new Date(since);
+    if (!isNaN(sinceDate)) {
+      query.createdAt = { $gte: sinceDate };
     }
-
-    const messages = await Message.find(query).sort("createdAt");
-
-    if (messages.length === 0) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ msg: "No messages found" });
-    }
-
-    res.status(StatusCodes.OK).json({messages});
-  } catch (error) {
-    console.error(error);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Failed to fetch messages" });
   }
+
+  const messages = await Message.find(query).sort("createdAt");
+  if (messages.length === 0) {
+    // Note: We need to use an arrow function here, rather than just pushing `res.send` directly.
+    // This is because of handling of "this".
+    // You can read about "this" at https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
+    callbacksForNewMessages.push((value) => res.send(value));
+  } else {
+    res.send(messages);
+  }
+  // try {
+
+  //   if (messages.length === 0) {
+  //     return res
+  //       .status(StatusCodes.NOT_FOUND)
+  //       .json({ msg: "No messages found" });
+  //   }
+
+  //   res.status(StatusCodes.OK).json({ messages });
+  // } catch (error) {
+  //   console.error(error);
+  //   res
+  //     .status(StatusCodes.INTERNAL_SERVER_ERROR)
+  //     .json({ msg: "Failed to fetch messages" });
+  // }
 };
 
 export const createMessage = async (req, res) => {
   const { userID, name } = req.user;
   req.body.sender = { id: userID, name };
   const message = await Message.create(req.body);
-  res.status(StatusCodes.CREATED).json(message);
+
+  while (callbacksForNewMessages.length > 0) {
+    const callback = callbacksForNewMessages.pop();
+    callback([message]);
+  }
+
+  res.status(StatusCodes.CREATED).json({ msg: "Message created successfully", message });
 };
 
 export const getAllMessages = async (req, res) => {
