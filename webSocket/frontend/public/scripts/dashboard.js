@@ -14,7 +14,13 @@ socket.onopen = () => {
 };
 
 socket.onmessage = (evt) => {
-  console.log("Message received from the server: ", evt.data);
+  const msg = JSON.parse(evt.data);
+  console.log("Message received from the server: ", msg);
+  const { name } = decodeToken(msg.token);
+
+  // Add the new message to the state and re-render the messages
+  state.messages.push(msg);
+  render(state.messages);
 };
 
 socket.onerror = () => {
@@ -26,37 +32,26 @@ socket.onclose = (evt) => {
   console.log(evt.data);
 };
 
-
-async function sendMessage(message) {
-  try {
+function sendMessage(message) {
+  if (socket.readyState === WebSocket.OPEN) {
     const token = getToken();
-    const res = await fetch(`${baseUrl}/api/v1/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(message),
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to send message: ${res.status}`);
-    }
-
-    const { newMessage } = await res.json();
-    state.messages.push(newMessage); // update messages in state
-  } catch (err) {
-    console.error(err);
+    const payload = {
+      message,
+      token,
+    };
+    socket.send(JSON.stringify(payload));
+  } else {
+    console.error("WebSocket is not open. Cannot send message.");
   }
 }
 
-async function sendMessageHandler(e) {
+function sendMessageHandler(e) {
   e.preventDefault();
   const message = messageInput.value;
   if (!message) {
     return;
   }
-  await sendMessage({ message });
+  sendMessage(message);
   messageInput.value = "";
 }
 
@@ -77,6 +72,12 @@ function render(messages) {
   messageContainer.innerHTML = "";
   const listOfMessages = messages.map(createMessageCard);
   messageContainer.append(...listOfMessages);
+}
+
+function decodeToken(token) {
+  const payloadBase64 = token.split(".")[1];
+  const decodedPayload = atob(payloadBase64);
+  return JSON.parse(decodedPayload);
 }
 
 function main() {
