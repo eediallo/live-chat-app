@@ -4,9 +4,40 @@ import cors from "cors";
 import { connectDB } from "./db/db.js";
 import { messageRouter } from "./routes/messages.js";
 import { authRouter } from "./routes/auth.js";
+import { WebSocketServer } from "ws";
+import http from "http";
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+
+const wss = new WebSocketServer({ server });
+
+// wss connection event
+wss.on("connection", (ws) => {
+  console.log("New client connected");
+
+  setTimeout(() => {
+    ws.send(Math.random());
+  }, 2000);
+
+  // handle messages from clients
+  ws.on("message", (message, request, client) => {
+    const msgString = message.toString();
+    console.log(`Received message: ${msgString}`);
+    // Broadcast the message to all connected client
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(msgString);
+      }
+    });
+  });
+
+  // Handle client disconnection
+  ws.on("close", () => {
+    console.log("Client disconnected");
+  });
+});
 
 const port = process.env.PORT || 3000;
 
@@ -23,7 +54,7 @@ app.use("/api/v1/auth", authRouter);
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
-    app.listen(port, () =>
+    server.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
   } catch (err) {
