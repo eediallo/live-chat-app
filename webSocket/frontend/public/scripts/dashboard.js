@@ -25,19 +25,7 @@ socket.onclose = (evt) => {
   console.log("WEBSOCKET CLOSE...");
   console.log(evt.data);
 };
-// async function fetchMessages() {
-//   try {
-//     const res = await fetch(`${baseUrl}/api/v1/messages/all`);
-//     if (!res.ok) {
-//       throw new Error(`Failed to fetch message: ${res.status}`);
-//     }
 
-//     const { messages } = await res.json();
-//     // state.messages = messages; // update messages in state
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
 
 async function sendMessage(message) {
   try {
