@@ -5,6 +5,7 @@ const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
 
 const socket = new WebSocket("ws://localhost:3000");
+const baseUrl = "http://localhost:3000";
 const state = {
   messages: [],
 };
@@ -14,12 +15,12 @@ socket.onopen = () => {
 };
 
 socket.onmessage = (evt) => {
-  const msg = JSON.parse(evt.data);
-  console.log("Message received from the server: ", msg);
-  const { name } = decodeToken(msg.token);
-
+  const { message, token } = JSON.parse(evt.data);
+  const { name } = decodeToken(token);
+  const payload = { message, name };
+  console.log(payload);
   // Add the new message to the state and re-render the messages
-  state.messages.push(msg);
+  state.messages.push(payload);
   render(state.messages);
 };
 
@@ -32,7 +33,7 @@ socket.onclose = (evt) => {
   console.log(evt.data);
 };
 
-function sendMessage(message) {
+async function sendMessage(message) {
   if (socket.readyState === WebSocket.OPEN) {
     const token = getToken();
     const payload = {
@@ -40,6 +41,26 @@ function sendMessage(message) {
       token,
     };
     socket.send(JSON.stringify(payload));
+
+    try {
+      // Save the message to the database
+      const response = await fetch(`${baseUrl}/api/v1/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save message to the database");
+      }
+
+      console.log("Message saved to the database");
+    } catch (error) {
+      console.error("Error saving message to the database:", error);
+    }
   } else {
     console.error("WebSocket is not open. Cannot send message.");
   }
@@ -58,11 +79,11 @@ function sendMessageHandler(e) {
 sendMsgBtn.addEventListener("click", sendMessageHandler);
 
 function createMessageCard(message) {
+  console.log(message);
   const messageSection = document.createElement("section");
   const textMessage = document.createElement("p");
-  const timestamp = new Date(message.createdAt).toLocaleString();
-  const senderName = message.sender ? message.sender.name : "Unknown";
-  textMessage.innerHTML = `<b id="user">${senderName}</b>: ${message.message} <span class="timestamp">(${timestamp})</span>`;
+  const timestamp = new Date().toLocaleString();
+  textMessage.innerHTML = `<b id="user">${message.name}</b>: ${message.message} <span class="timestamp">(${timestamp})</span>`;
   messageSection.append(textMessage);
   return messageSection;
 }
