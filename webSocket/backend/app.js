@@ -17,10 +17,6 @@ const wss = new WebSocketServer({ server });
 wss.on("connection", (ws) => {
   console.log("New client connected");
 
-  setTimeout(() => {
-    ws.send(Math.random());
-  }, 2000);
-
   // handle messages from clients
   ws.on("message", (message, request, client) => {
     const msgString = message.toString();
