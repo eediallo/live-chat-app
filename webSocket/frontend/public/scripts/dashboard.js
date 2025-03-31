@@ -4,11 +4,27 @@ const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
 
-const baseUrl = "http://localhost:3000";
+const socket = new WebSocket("ws://localhost:3000");
 const state = {
   messages: [],
 };
 
+socket.onopen = () => {
+  console.log("SOCKET OPENED");
+};
+
+socket.onmessage = (evt) => {
+  console.log("Message received from the server: ", evt.data);
+};
+
+socket.onerror = () => {
+  console.log("SOMETHING WENT WRONG..");
+};
+
+socket.onclose = (evt) => {
+  console.log("WEBSOCKET CLOSE...");
+  console.log(evt.data);
+};
 // async function fetchMessages() {
 //   try {
 //     const res = await fetch(`${baseUrl}/api/v1/messages/all`);
@@ -75,50 +91,11 @@ function render(messages) {
   messageContainer.append(...listOfMessages);
 }
 
-const keepFetchingMessages = async () => {
-  try {
-    const lastMessageTime =
-      state.messages.length > 0
-        ? state.messages[state.messages.length - 1].createdAt
-        : null;
-    const queryString = lastMessageTime ? `?since=${lastMessageTime}` : "";
-    const url = `${baseUrl}/api/v1/messages/all${queryString}`;
-
-    const rawResponse = await fetch(url, {
-      method: "GET",
-      keepalive: true, // Ensures the request stays alive
-    });
-
-    if (!rawResponse.ok) {
-      throw new Error(`Failed to fetch messages: ${rawResponse.status}`);
-    }
-
-    const { messages } = await rawResponse.json();
-
-    if (messages.length > 0) {
-      // Filter only truly new messages
-      const newMessages = messages.filter(
-        (msg) =>
-          !state.messages.some((existingMsg) => existingMsg._id === msg._id)
-      );
-
-      if (newMessages.length > 0) {
-        state.messages.push(...newMessages);
-        render(state.messages);
-      }
-    }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setTimeout(keepFetchingMessages, 5000); // Continue polling
-  }
-};
-
 function main() {
   if (!isAuthenticated()) {
     window.location.href = "/login.html";
   } else {
-    keepFetchingMessages();
+    console.log("nothing yet");
   }
 }
 
