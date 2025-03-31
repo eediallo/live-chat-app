@@ -1,3 +1,35 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 800px;
+    margin: 0 auto;
+}
+
+header{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+form{
+    display: flex;
+    justify-content: center;
+    margin: 20px 0
+}
+
+input{
+    padding: 10px;
+    width: 300px;
+}
+
+#send-msg-btn {
+    background-color: green;
+    color: white;
+    padding: 10px;
+    border: none;
+}
+
 .message {
     border: 1px solid #ccc;
     padding: 10px;
