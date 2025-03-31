@@ -15,12 +15,10 @@ socket.onopen = () => {
 };
 
 socket.onmessage = (evt) => {
-  const { message, token } = JSON.parse(evt.data);
-  const { name } = decodeToken(token);
-  const payload = { message, name };
-  console.log(payload);
+  const msg = JSON.parse(evt.data);
+  console.log(msg);
   // Add the new message to the state and re-render the messages
-  state.messages.push(payload);
+  state.messages.push(msg);
   render(state.messages);
 };
 
@@ -36,9 +34,10 @@ socket.onclose = (evt) => {
 async function sendMessage(message) {
   if (socket.readyState === WebSocket.OPEN) {
     const token = getToken();
+    const sender = decodeToken(token);
     const payload = {
       message,
-      token,
+      sender,
     };
     socket.send(JSON.stringify(payload));
 
@@ -117,7 +116,7 @@ async function main() {
     window.location.href = "/login.html";
   } else {
     await fetchAllMessagesForAllUsers();
-    console.log(state.messages)
+    console.log(state.messages);
     render();
   }
 }
