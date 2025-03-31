@@ -37,10 +37,18 @@ input{
     border-radius: 5px;
     list-style: none;
 }
-.message-header {
-    font-weight: bold;
+
+
+.date-header {
+    text-align: center;
+    display: flex;
+    align-items: center;
 }
-.message-date {
-    font-size: 0.9em;
-    color: gray;
+
+.date-header::before,
+.date-header::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid #ccc;
+    margin: 0 10px;
 }
