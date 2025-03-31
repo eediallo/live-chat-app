@@ -79,19 +79,17 @@ function sendMessageHandler(e) {
 sendMsgBtn.addEventListener("click", sendMessageHandler);
 
 function createMessageCard(message) {
-  console.log(message);
   const messageSection = document.createElement("section");
   const textMessage = document.createElement("p");
   const timestamp = new Date().toLocaleString();
-  textMessage.innerHTML = `<b id="user">${message.name}</b>: ${message.message} <span class="timestamp">(${timestamp})</span>`;
+  textMessage.innerHTML = `<b id="user">${message.sender.name}</b>: ${message.message} <span class="timestamp">(${timestamp})</span>`;
   messageSection.append(textMessage);
   return messageSection;
 }
 
-function render(messages) {
-  console.log(messages);
+function render() {
   messageContainer.innerHTML = "";
-  const listOfMessages = messages.map(createMessageCard);
+  const listOfMessages = state.messages.map(createMessageCard);
   messageContainer.append(...listOfMessages);
 }
 
@@ -101,11 +99,26 @@ function decodeToken(token) {
   return JSON.parse(decodedPayload);
 }
 
-function main() {
+async function fetchAllMessagesForAllUsers() {
+  try {
+    const resp = await fetch(`${baseUrl}/api/v1/messages/all`);
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch messages:`, resp.status);
+    }
+    const { messages } = await resp.json();
+    state.messages = messages;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function main() {
   if (!isAuthenticated()) {
     window.location.href = "/login.html";
   } else {
-    console.log("nothing yet");
+    await fetchAllMessagesForAllUsers();
+    console.log(state.messages)
+    render();
   }
 }
 
