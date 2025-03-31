@@ -78,19 +78,52 @@ function sendMessageHandler(e) {
 sendMsgBtn.addEventListener("click", sendMessageHandler);
 
 function createMessageCard(message) {
-  const messageSection = document.createElement("section");
-  const textMessage = document.createElement("p");
-  const timestamp = new Date().toLocaleString();
-  textMessage.innerHTML = `<b id="user">${message.sender.name}</b>: ${message.message} <span class="timestamp">(${timestamp})</span>`;
-  messageSection.append(textMessage);
-  return messageSection;
+  const li = document.createElement("li");
+  li.classList.add("message");
+
+  const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const time = document.createElement("i");
+  time.textContent = ` ${timestamp}`;
+
+  const name = document.createElement("b");
+  name.textContent = message.sender.name;
+
+  const text = document.createElement("p");
+  text.textContent = message.message;
+
+  li.append(name, time, text);
+  return li;
 }
 
 function render() {
   messageContainer.innerHTML = "";
-  const listOfMessages = state.messages.map(createMessageCard);
-  messageContainer.append(...listOfMessages);
+
+  let currentDate = null;
+  state.messages.forEach((message) => {
+    const messageDate = new Date(message.createdAt).toLocaleDateString();
+
+    if (messageDate !== currentDate) {
+      currentDate = messageDate;
+      const dateHeader = document.createElement("div");
+      dateHeader.classList.add("date-header");
+      dateHeader.textContent = currentDate;
+      messageContainer.append(dateHeader);
+    }
+
+    const messageCard = createMessageCard(message);
+    messageContainer.append(messageCard);
+  });
 }
+
+// function render() {
+//   messageContainer.innerHTML = "";
+//   const listOfMessages = state.messages.map(createMessageCard);
+//   messageContainer.append(...listOfMessages);
+// }
 
 function decodeToken(token) {
   const payloadBase64 = token.split(".")[1];
@@ -116,7 +149,6 @@ async function main() {
     window.location.href = "/login.html";
   } else {
     await fetchAllMessagesForAllUsers();
-    console.log(state.messages);
     render();
   }
 }
