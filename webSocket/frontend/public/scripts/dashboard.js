@@ -3,6 +3,7 @@ import { getToken } from "./storage.js";
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
+const errorMsgEl = document.querySelector("#errorMsg");
 
 const socket = new WebSocket("ws://localhost:3000");
 const baseUrl = "http://localhost:3000";
@@ -130,12 +131,12 @@ async function fetchAllMessagesForAllUsers() {
   try {
     const resp = await fetch(`${baseUrl}/api/v1/messages/all`);
     if (!resp.ok) {
-      throw new Error(`Failed to fetch messages:`, resp.status);
+      throw new Error(`Failed to fetch messages: ${resp.status}`);
     }
     const { messages } = await resp.json();
     state.messages = messages;
   } catch (e) {
-    console.error(e);
+    console.log(e)
   }
 }
 
