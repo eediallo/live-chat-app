@@ -1,13 +1,52 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 800px;
+    margin: 0 auto;
+}
+
+h1{
+    text-align: center;
+}
+
+form{
+    display: flex;
+    justify-content: center;
+    margin: 20px 0
+}
+
+input{
+    padding: 10px;
+    width: 300px;
+}
+
+#send-msg-btn {
+    background-color: green;
+    color: white;
+    padding: 10px;
+    border: none;
+}
+
 .message {
     border: 1px solid #ccc;
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
+    list-style: none;
 }
-.message-header {
-    font-weight: bold;
+
+
+.date-header {
+    text-align: center;
+    display: flex;
+    align-items: center;
 }
-.message-date {
-    font-size: 0.9em;
-    color: gray;
+
+.date-header::before,
+.date-header::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid #ccc;
+    margin: 0 10px;
 }
