@@ -1,37 +1,34 @@
 import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
+import { asyncWrapper } from "../middleware/async.js";
+import { NotFound } from "../errors/notFoundError.js";
+import { BadRequest } from "../errors/badRequestError.js";
 
 const callbacksForNewMessages = [];
 
-export const getAllMessagesForAllUsers = async (req, res) => {
+export const getAllMessagesForAllUsers = asyncWrapper(async (req, res) => {
   const { since } = req.query;
   let query = {};
 
+  // Validate 'since' parameter
   if (since) {
     const sinceDate = new Date(since);
-    if (!isNaN(sinceDate)) {
-      query.createdAt = { $gte: sinceDate };
+    if (isNaN(sinceDate)) {
+      throw new BadRequest("Invalid 'since' date format");
     }
+    query.createdAt = { $gte: sinceDate };
   }
 
   const messages = await Message.find(query).sort("createdAt");
-  try {
-    if (messages.length === 0) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ msg: "No messages found" });
-    }
 
-    res.status(StatusCodes.OK).json({ messages });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Failed to fetch messages" });
+  if (messages.length === 0) {
+    throw new NotFound("No message found");
   }
-};
 
-export const createMessage = async (req, res) => {
+  res.status(StatusCodes.OK).json({ messages });
+});
+
+export const createMessage = asyncWrapper(async (req, res) => {
   const { userID, name } = req.user;
   req.body.sender = { id: userID, name };
   const message = await Message.create(req.body);
@@ -44,9 +41,9 @@ export const createMessage = async (req, res) => {
   res
     .status(StatusCodes.CREATED)
     .json({ msg: "Message created successfully", message });
-};
+});
 
-export const getAllMessages = async (req, res) => {
+export const getAllMessages = asyncWrapper(async (req, res) => {
   const sender = req.user?.userID;
   if (!sender) {
     return res
@@ -60,9 +57,9 @@ export const getAllMessages = async (req, res) => {
       .json({ msg: "No messages found for this user" });
   }
   res.status(StatusCodes.OK).json(messages);
-};
+});
 
-export const getMessage = async (req, res) => {
+export const getMessage = asyncWrapper(async (req, res) => {
   const {
     user: { userID },
     params: { id: msgID },
@@ -74,9 +71,9 @@ export const getMessage = async (req, res) => {
       .json({ msg: `No message with Id ${msgID} found` });
   }
   res.status(StatusCodes.OK).json({ message });
-};
+});
 
-export const deleteMessage = async (req, res) => {
+export const deleteMessage = asyncWrapper(async (req, res) => {
   const {
     user: { userID },
     params: { id: msgID },
@@ -91,9 +88,9 @@ export const deleteMessage = async (req, res) => {
       .json({ msg: `No message with Id ${msgID} found` });
   }
   res.status(StatusCodes.OK).send();
-};
+});
 
-export const updateMessage = async (req, res) => {
+export const updateMessage = asyncWrapper(async (req, res) => {
   const { message } = req.body;
   const {
     user: { userID },
@@ -110,4 +107,4 @@ export const updateMessage = async (req, res) => {
       .json({ msg: `No message with Id ${msgID} found` });
   }
   res.status(StatusCodes.OK).json(updateMessage);
-};
+});
