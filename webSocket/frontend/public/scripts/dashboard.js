@@ -16,10 +16,9 @@ socket.onopen = () => {
 
 socket.onmessage = (evt) => {
   const msg = JSON.parse(evt.data);
-  console.log(msg);
   // Add the new message to the state and re-render the messages
   state.messages.push(msg);
-  render(state.messages);
+  render();
 };
 
 socket.onerror = () => {
@@ -35,9 +34,11 @@ async function sendMessage(message) {
   if (socket.readyState === WebSocket.OPEN) {
     const token = getToken();
     const sender = decodeToken(token);
+    const timestamp = new Date().toISOString();
     const payload = {
       message,
       sender,
+      createdAt: timestamp, // Ensure createdAt is set to a valid ISO string
     };
     socket.send(JSON.stringify(payload));
 
@@ -118,12 +119,6 @@ function render() {
     messageContainer.append(messageCard);
   });
 }
-
-// function render() {
-//   messageContainer.innerHTML = "";
-//   const listOfMessages = state.messages.map(createMessageCard);
-//   messageContainer.append(...listOfMessages);
-// }
 
 function decodeToken(token) {
   const payloadBase64 = token.split(".")[1];
