@@ -2,6 +2,7 @@ import { isAuthenticated } from "./auth.js";
 import { getToken } from "./storage.js";
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
+const nameInput = document.querySelector("#name-input");
 const messageContainer = document.querySelector("#messages-container");
 const errorMsgEl = document.querySelector("#errorMsg");
 
@@ -31,10 +32,8 @@ socket.onclose = (evt) => {
   console.log(evt.data);
 };
 
-async function sendMessage(message) {
+async function sendMessage(sender, message) {
   if (socket.readyState === WebSocket.OPEN) {
-    const token = getToken();
-    const sender = decodeToken(token);
     const timestamp = new Date().toISOString();
     const payload = {
       message,
@@ -49,7 +48,6 @@ async function sendMessage(message) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ message }),
       });
@@ -70,10 +68,11 @@ async function sendMessage(message) {
 function sendMessageHandler(e) {
   e.preventDefault();
   const message = messageInput.value;
-  if (!message) {
+  const sender = nameInput.value;
+  if (!message || !sender) {
     return;
   }
-  sendMessage(message);
+  sendMessage(sender, message);
   messageInput.value = "";
 }
 
@@ -121,11 +120,11 @@ function render() {
   });
 }
 
-function decodeToken(token) {
-  const payloadBase64 = token.split(".")[1];
-  const decodedPayload = atob(payloadBase64);
-  return JSON.parse(decodedPayload);
-}
+// function decodeToken(token) {
+//   const payloadBase64 = token.split(".")[1];
+//   const decodedPayload = atob(payloadBase64);
+//   return JSON.parse(decodedPayload);
+// }
 
 async function fetchAllMessagesForAllUsers() {
   try {
