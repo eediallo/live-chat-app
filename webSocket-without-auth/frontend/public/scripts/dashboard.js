@@ -1,5 +1,3 @@
-import { isAuthenticated } from "./auth.js";
-import { getToken } from "./storage.js";
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const nameInput = document.querySelector("#name-input");
@@ -32,13 +30,13 @@ socket.onclose = (evt) => {
   console.log(evt.data);
 };
 
-async function sendMessage(sender, message) {
+async function sendMessage(sender, text) {
   if (socket.readyState === WebSocket.OPEN) {
     const timestamp = new Date().toISOString();
     const payload = {
-      message,
+      text,
       sender,
-      createdAt: timestamp, // Ensure createdAt is set to a valid ISO string
+      createdAt: timestamp,
     };
     socket.send(JSON.stringify(payload));
 
@@ -49,7 +47,10 @@ async function sendMessage(sender, message) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+          sender,
+          text,
+        }),
       });
 
       if (!response.ok) {
@@ -74,6 +75,7 @@ function sendMessageHandler(e) {
   }
   sendMessage(sender, message);
   messageInput.value = "";
+  nameInput.value = "";
 }
 
 sendMsgBtn.addEventListener("click", sendMessageHandler);
@@ -90,13 +92,13 @@ function createMessageCard(message) {
   const time = document.createElement("i");
   time.textContent = ` ${timestamp}`;
 
-  const name = document.createElement("b");
-  name.textContent = message.sender.name;
+  const sender = document.createElement("b");
+  sender.textContent = message.sender;
 
   const text = document.createElement("p");
-  text.textContent = message.message;
+  text.textContent = message.text;
 
-  li.append(name, time, text);
+  li.append(sender, time, text);
   return li;
 }
 
