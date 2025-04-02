@@ -7,6 +7,7 @@ import { WebSocketServer } from "ws";
 import http from "http";
 dotenv.config();
 import { handleIncomingMessages } from "./handlers/handleIncomingMessages.js";
+import { reactionRouter } from "./routes/reaction.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -49,6 +50,7 @@ app.use(express.json());
 app.use(express.static(publicDir)); // serve static files
 
 app.use("/api/v1/messages", messageRouter);
+app.use("/api/v1/messages", reactionRouter);
 
 const start = async () => {
   try {
