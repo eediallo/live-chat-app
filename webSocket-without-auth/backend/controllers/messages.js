@@ -60,30 +60,3 @@ export const getAllMessagesForAllUsers = async (req, res) => {
       .json({ msg: "Failed to fetch messages" });
   }
 };
-
-// Get all messages for a specific user
-export const getAllMessages = async (req, res) => {
-  const { name } = req.query;
-
-  if (!name) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ msg: "Name is required" });
-  }
-
-  try {
-    const messages = await Message.find({ name }).sort("createdAt");
-    if (messages.length === 0) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ msg: "No messages found for this user" });
-    }
-
-    res.status(StatusCodes.OK).json({ messages });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Failed to fetch messages" });
-  }
-};
