@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
+import { User } from "../models/user.js";
 
 // Get all messages for all users
 export const getAllMessagesForAllUsers = async (req, res) => {
@@ -31,18 +32,23 @@ export const getAllMessagesForAllUsers = async (req, res) => {
 };
 
 // Create a new message
-export const createMessage = async (req, res) => {
-  const { sender, text } = req.body;
+export const createUserAndSendMessage = async (req, res) => {
+  const { username, text } = req.body;
 
-  if (!sender || !text) {
+  if (!username || !text) {
     return res
       .status(StatusCodes.BAD_REQUEST)
       .json({ msg: "Name and message are required" });
   }
 
   try {
+    const newUser = await User.create({ username });
+
     const message = await Message.create({
-      sender,
+      sender: {
+        id: newUser._id,
+        username: newUser.username,
+      },
       text,
     });
 
