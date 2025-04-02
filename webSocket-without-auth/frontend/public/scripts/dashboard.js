@@ -6,8 +6,10 @@ const errorMsgEl = document.querySelector("#errorMsg");
 
 const socket = new WebSocket("ws://localhost:3000");
 const baseUrl = "http://localhost:3000";
+
 const state = {
   messages: [],
+  username: null, // Add a username to the state
 };
 
 socket.onopen = () => {
@@ -16,7 +18,6 @@ socket.onopen = () => {
 
 socket.onmessage = (evt) => {
   const msg = JSON.parse(evt.data);
-  // Add the new message to the state and re-render the messages
   state.messages.push(msg);
   render();
 };
@@ -30,25 +31,26 @@ socket.onclose = (evt) => {
   console.log(evt.data);
 };
 
-async function sendMessage(sender, text) {
+async function sendMessage(username, text) {
   if (socket.readyState === WebSocket.OPEN) {
     const timestamp = new Date().toISOString();
     const payload = {
       text,
-      sender,
+      sender: {
+        username: username,
+      },
       createdAt: timestamp,
     };
     socket.send(JSON.stringify(payload));
 
     try {
-      // Save the message to the database
       const response = await fetch(`${baseUrl}/api/v1/messages`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          sender,
+          username,
           text,
         }),
       });
@@ -69,13 +71,24 @@ async function sendMessage(sender, text) {
 function sendMessageHandler(e) {
   e.preventDefault();
   const message = messageInput.value;
-  const sender = nameInput.value;
+  let sender = nameInput.value;
+
+  if (state.username) {
+    sender = state.username; // Use stored username
+  }
+
   if (!message || !sender) {
     return;
   }
+
   sendMessage(sender, message);
   messageInput.value = "";
-  nameInput.value = "";
+
+  // Hide name input after username is set
+  if (!state.username) {
+    state.username = sender;
+    nameInput.style.display = "none";
+  }
 }
 
 sendMsgBtn.addEventListener("click", sendMessageHandler);
@@ -93,7 +106,7 @@ function createMessageCard(message) {
   time.textContent = ` ${timestamp}`;
 
   const sender = document.createElement("b");
-  sender.textContent = message.sender;
+  sender.textContent = message.sender.username;
 
   const text = document.createElement("p");
   text.textContent = message.text;
@@ -121,12 +134,6 @@ function render() {
     messageContainer.append(messageCard);
   });
 }
-
-// function decodeToken(token) {
-//   const payloadBase64 = token.split(".")[1];
-//   const decodedPayload = atob(payloadBase64);
-//   return JSON.parse(decodedPayload);
-// }
 
 async function fetchAllMessagesForAllUsers() {
   try {
