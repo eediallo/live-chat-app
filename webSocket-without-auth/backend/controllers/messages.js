@@ -42,12 +42,19 @@ export const createUserAndSendMessage = async (req, res) => {
   }
 
   try {
-    const newUser = await User.create({ username });
+    // Check if the user already exists
+    let existingUser = await User.findOne({ username });
 
+    if (!existingUser) {
+      // If the user doesn't exist, create a new one
+      existingUser = await User.create({ username });
+    }
+
+    // Create the message
     const message = await Message.create({
       sender: {
-        id: newUser._id,
-        username: newUser.username,
+        id: existingUser._id,
+        username: existingUser.username,
       },
       text,
     });
