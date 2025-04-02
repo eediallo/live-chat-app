@@ -5,22 +5,21 @@ import { connectDB } from "./db/db.js";
 import { messageRouter } from "./routes/messages.js";
 import { WebSocketServer } from "ws";
 import http from "http";
-import { saveMsgFromWebsocketToDb } from "./controllers/messages.js";
 dotenv.config();
+import { handleIncomingMessages } from "./handlers/handleIncomingMessages.js";
 
 const app = express();
 const server = http.createServer(app);
 
 const wss = new WebSocketServer({ server });
 
-const handleIncomingMessage = async (message) => {
-  const msgString = message.toString();
+// wss connection event
+wss.on("connection", (ws) => {
+  console.log("New client connected");
 
-  try {
-    const messageData = JSON.parse(msgString);
-    const newMessage = await saveMsgFromWebsocketToDb(messageData);
-
-    // Broadcast the message to all connected client
+  // handle messages from clients
+  ws.on("message", async (message) => {
+    const newMessage = await handleIncomingMessages(message);
     if (newMessage) {
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
@@ -28,22 +27,16 @@ const handleIncomingMessage = async (message) => {
         }
       });
     }
-  } catch (error) {
-    console.error("Error parsing message", error);
-  }
-};
-
-// wss connection event
-wss.on("connection", (ws) => {
-  console.log("New client connected");
-
-  // handle messages from clients
-  ws.on("message", handleIncomingMessage);
+  });
 
   // Handle client disconnection
   ws.on("close", () => {
     console.log("Client disconnected");
   });
+});
+
+wss.on("error", (error) => {
+  console.error("WebSocket error:", error);
 });
 
 const port = process.env.PORT || 3000;
