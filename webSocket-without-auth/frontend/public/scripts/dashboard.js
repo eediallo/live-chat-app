@@ -42,27 +42,6 @@ async function sendMessage(username, text) {
       createdAt: timestamp,
     };
     socket.send(JSON.stringify(payload));
-
-    try {
-      const response = await fetch(`${baseUrl}/api/v1/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          text,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save message to the database");
-      }
-
-      console.log("Message saved to the database");
-    } catch (error) {
-      console.error("Error saving message to the database:", error);
-    }
   } else {
     console.error("WebSocket is not open. Cannot send message.");
   }
