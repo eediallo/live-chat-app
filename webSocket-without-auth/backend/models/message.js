@@ -8,8 +8,8 @@ const messageSchema = new mongoose.Schema(
       require: [true, "Text message must be provided"],
     },
     sender: {
-      type: String,
-      required: [true, "Text message must be provided"],
+      id: { type: mongoose.Schema.Types.ObjectId , ref: 'User'},
+      username: String,
     },
   },
   { timestamps: true }
