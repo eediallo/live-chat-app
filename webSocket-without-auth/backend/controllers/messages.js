@@ -2,6 +2,36 @@ import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 import { User } from "../models/user.js";
 
+export const saveMsgFromWebsocketToDb = async (message) => {
+  const { sender, text, createdAt } = message;
+  const username = sender.username;
+
+  if (!username || !text) {
+    console.error("Username and text message must be provided");
+    return;
+  }
+  try {
+    let existingUser = await User.findOne({ username: username });
+    if (!existingUser) {
+      existingUser = await User.create({ username: username });
+    }
+
+    const newMessage = await Message.create({
+      sender: {
+        id: existingUser._id,
+        username: username,
+      },
+      text,
+      createdAt,
+    });
+
+    return newMessage;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
 // Get all messages for all users
 export const getAllMessagesForAllUsers = async (req, res) => {
   const { since } = req.query;
@@ -28,43 +58,6 @@ export const getAllMessagesForAllUsers = async (req, res) => {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ msg: "Failed to fetch messages" });
-  }
-};
-
-// Create a new message
-export const createUserAndSendMessage = async (req, res) => {
-  const { username, text } = req.body;
-
-  if (!username || !text) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ msg: "Name and message are required" });
-  }
-
-  try {
-    // Check if the user already exists
-    let existingUser = await User.findOne({ username });
-
-    if (!existingUser) {
-      // If the user doesn't exist, create a new one
-      existingUser = await User.create({ username });
-    }
-
-    // Create the message
-    const message = await Message.create({
-      sender: {
-        id: existingUser._id,
-        username: existingUser.username,
-      },
-      text,
-    });
-
-    res.status(StatusCodes.CREATED).json(message);
-  } catch (error) {
-    console.error(error);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Failed to create message" });
   }
 };
 
