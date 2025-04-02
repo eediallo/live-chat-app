@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  createMessage,
+  createUserAndSendMessage,
   getAllMessages,
   getAllMessagesForAllUsers,
 } from "../controllers/messages.js";
@@ -9,5 +9,5 @@ const messageRouter = express.Router();
 
 messageRouter.get("/all", getAllMessagesForAllUsers);
 messageRouter.get("/", getAllMessages);
-messageRouter.post("/", createMessage);
+messageRouter.post("/", createUserAndSendMessage);
 export { messageRouter };
