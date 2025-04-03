@@ -77,6 +77,8 @@ sendMsgBtn.addEventListener("click", sendMessageHandler);
 function createMessageCard(message) {
   const li = document.createElement("li");
   li.classList.add("message");
+  li.setAttribute("data-message-id", message._id);
+  li.setAttribute("data-user-id", message.sender.id);
 
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
     hour: "2-digit",
@@ -92,13 +94,23 @@ function createMessageCard(message) {
   const text = document.createElement("p");
   text.textContent = message.text;
 
+  // Like Button
   const likeButton = document.createElement("button");
   likeButton.textContent = `👍 ${message.likes || 0}`;
-  likeButton.addEventListener("click", () => likeMessage(message._id));
+  likeButton.classList.add("like-btn");
+  likeButton.addEventListener("click", async () => {
+    const newLikes = await likeMessage(message._id, message.sender.id);
+    likeButton.textContent = `👍 ${newLikes}`; // Update UI
+  });
 
+  // Dislike Button
   const dislikeButton = document.createElement("button");
   dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
-  dislikeButton.addEventListener("click", () => dislikeMessage(message._id));
+  dislikeButton.classList.add("dislike-btn");
+  dislikeButton.addEventListener("click", async () => {
+    const newDislikes = await dislikeMessage(message._id, message.sender.id);
+    dislikeButton.textContent = `👎 ${newDislikes}`; // Update UI
+  });
 
   li.append(sender, time, text, likeButton, dislikeButton);
   return li;
@@ -131,13 +143,43 @@ async function fetchAllMessagesForAllUsers() {
       throw new Error(`Failed to fetch messages: ${resp.status}`);
     }
     const { messages } = await resp.json();
+
+    // Fetch likes and dislikes for each message
+    for (let message of messages) {
+      const reactionsResp = await fetch(
+        `${baseUrl}/api/v1/reactions/${message._id}`
+      );
+      if (reactionsResp.ok) {
+        const { likes, dislikes } = await reactionsResp.json();
+        message.likes = likes;
+        message.dislikes = dislikes;
+      } else {
+        message.likes = 0;
+        message.dislikes = 0;
+      }
+    }
+
     state.messages = messages;
+    render(); // Render after updating all messages
   } catch (e) {
     console.log(e);
   }
 }
 
-function likeMessage(messageId) {
+async function fetchLikesAndDislikes(messageId) {
+  try {
+    const response = await fetch(`${baseUrl}/api/v1/reactions/${messageId}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch reactions");
+    }
+    return await response.json(); // Should return { likes: number, dislikes: number }
+  } catch (e) {
+    console.error("Error fetching likes and dislikes", e);
+    return { likes: 0, dislikes: 0 }; // Default fallback
+  }
+}
+
+function likeMessagePayload(messageId) {
   const payload = {
     type: "like",
     messageId: messageId,
@@ -145,12 +187,75 @@ function likeMessage(messageId) {
   socket.send(JSON.stringify(payload));
 }
 
-function dislikeMessage(messageId) {
+function dislikeMessagePayload(messageId) {
   const payload = {
     type: "dislike",
     messageId: messageId,
   };
   socket.send(JSON.stringify(payload));
+}
+
+async function likeMessage(messageId, userId) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/v1/reactions/${messageId}/${userId}/like`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to like message");
+
+    const { likes } = await fetchLikesAndDislikes(messageId); // Get updated count
+    return likes;
+  } catch (e) {
+    console.error("Error liking message", e);
+    return 0; // Return default if an error occurs
+  }
+}
+
+async function dislikeMessage(messageId, userId) {
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/v1/reactions/${messageId}/${userId}/dislike/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if (!response.ok) throw new Error("Failed to dislike message");
+
+    const { dislikes } = await fetchLikesAndDislikes(messageId); // Get updated count
+    return dislikes;
+  } catch (e) {
+    console.error("Error disliking message", e);
+    return 0;
+  }
+}
+
+async function updateMessageReactions(messageId) {
+  try {
+    const response = await fetch(`${baseUrl}/api/v1/reactions/${messageId}`);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch reaction counts");
+    }
+
+    const { likes, dislikes } = await response.json();
+
+    // Find the message in the UI and update the like/dislike counts
+    const messageEl = document.querySelector(
+      `[data-message-id="${messageId}"]`
+    );
+    if (messageEl) {
+      messageEl.querySelector(".like-btn").textContent = `👍 ${likes}`;
+      messageEl.querySelector(".dislike-btn").textContent = `👎 ${dislikes}`;
+    }
+  } catch (error) {
+    console.error("Error updating reactions:", error);
+  }
 }
 
 async function main() {
