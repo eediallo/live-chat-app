@@ -6,8 +6,7 @@ export const handleIncomingMessages = async (message) => {
 
   try {
     const messageData = JSON.parse(msgString);
-    console.log(messageData);
-
+    
     switch (messageData.type) {
       case "like":
         return await saveLike(messageData);
