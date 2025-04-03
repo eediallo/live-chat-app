@@ -1,14 +1,14 @@
 import express from "express";
 import {
-  likeMessage,
-  dislikeMessage,
+  saveDislike,
+  saveLike,
   getLikesAndDislikes,
 } from "../controllers/reaction.js";
 
 const reactionRouter = express.Router();
 
-reactionRouter.post("/:messageId/like", likeMessage);
-reactionRouter.post("/:messageId/dislike", dislikeMessage);
+reactionRouter.post("/:messageId/like", saveLike);
+reactionRouter.post("/:messageId/dislike", saveLike);
 reactionRouter.get("/:messageId/reactions", getLikesAndDislikes);
 
 export { reactionRouter };
