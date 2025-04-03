@@ -20,21 +20,8 @@ socket.onopen = () => {
 
 socket.onmessage = (evt) => {
   const msg = JSON.parse(evt.data);
-  console.log(msg, '=======>')
-  console.log(msg.type);
-  if (msg.type === "like" || msg.type === "dislike" || msg.type === "message") {
-    console.log(state.messages, "messages====>");
-    const index = state.messages.findIndex(
-      (message) => message._id === msg._id
-    );
-    if (index !== -1) {
-      state.messages[index] = msg;
-    } else {
-      state.messages.push(msg);
-    }
-    console.log(state.messages);
-    render();
-  }
+  state.messages.push(msg);
+  render();
 };
 
 socket.onerror = () => {
@@ -154,9 +141,6 @@ function likeMessage(messageId) {
   const payload = {
     type: "like",
     messageId: messageId,
-    sender: {
-      username: state.username,
-    },
   };
   socket.send(JSON.stringify(payload));
 }
@@ -165,9 +149,6 @@ function dislikeMessage(messageId) {
   const payload = {
     type: "dislike",
     messageId: messageId,
-    sender: {
-      username: state.username,
-    },
   };
   socket.send(JSON.stringify(payload));
 }
