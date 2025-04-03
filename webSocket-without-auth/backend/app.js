@@ -50,7 +50,7 @@ app.use(express.json());
 app.use(express.static(publicDir)); // serve static files
 
 app.use("/api/v1/messages", messageRouter);
-app.use("/api/v1/messages", reactionRouter);
+app.use("/api/v1/reactions", reactionRouter);
 
 const start = async () => {
   try {
