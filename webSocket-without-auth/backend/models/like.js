@@ -7,10 +7,11 @@ const likeSchema = new mongoose.Schema(
       ref: "Message",
       required: true,
     },
-    
-    sender: {
-      id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      username: String,
+
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
   },
   { timestamps: true }
