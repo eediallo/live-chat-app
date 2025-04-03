@@ -4,13 +4,15 @@ const nameInput = document.querySelector("#name-input");
 const messageContainer = document.querySelector("#messages-container");
 const errorMsgEl = document.querySelector("#errorMsg");
 
-const socket = new WebSocket("ws://localhost:3000");
-const baseUrl = "http://localhost:3000";
-
 const state = {
   messages: [],
-  username: null, // Add a username to the state
+  username: null,
 };
+
+const socket = new WebSocket("ws://localhost:3000", [], {
+  headers: { username: state.username },
+});
+const baseUrl = "http://localhost:3000";
 
 socket.onopen = () => {
   console.log("SOCKET OPENED");
@@ -18,8 +20,21 @@ socket.onopen = () => {
 
 socket.onmessage = (evt) => {
   const msg = JSON.parse(evt.data);
-  state.messages.push(msg);
-  render();
+  console.log(msg, '=======>')
+  console.log(msg.type);
+  if (msg.type === "like" || msg.type === "dislike" || msg.type === "message") {
+    console.log(state.messages, "messages====>");
+    const index = state.messages.findIndex(
+      (message) => message._id === msg._id
+    );
+    if (index !== -1) {
+      state.messages[index] = msg;
+    } else {
+      state.messages.push(msg);
+    }
+    console.log(state.messages);
+    render();
+  }
 };
 
 socket.onerror = () => {
@@ -35,6 +50,7 @@ async function sendMessage(username, text) {
   if (socket.readyState === WebSocket.OPEN) {
     const timestamp = new Date().toISOString();
     const payload = {
+      type: "message",
       text,
       sender: {
         username: username,
@@ -53,7 +69,7 @@ function sendMessageHandler(e) {
   let sender = nameInput.value;
 
   if (state.username) {
-    sender = state.username; // Use stored username
+    sender = state.username;
   }
 
   if (!message || !sender) {
@@ -63,7 +79,6 @@ function sendMessageHandler(e) {
   sendMessage(sender, message);
   messageInput.value = "";
 
-  // Hide name input after username is set
   if (!state.username) {
     state.username = sender;
     nameInput.style.display = "none";
@@ -90,7 +105,15 @@ function createMessageCard(message) {
   const text = document.createElement("p");
   text.textContent = message.text;
 
-  li.append(sender, time, text);
+  const likeButton = document.createElement("button");
+  likeButton.textContent = `👍 ${message.likes || 0}`;
+  likeButton.addEventListener("click", () => likeMessage(message._id));
+
+  const dislikeButton = document.createElement("button");
+  dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
+  dislikeButton.addEventListener("click", () => dislikeMessage(message._id));
+
+  li.append(sender, time, text, likeButton, dislikeButton);
   return li;
 }
 
@@ -125,6 +148,28 @@ async function fetchAllMessagesForAllUsers() {
   } catch (e) {
     console.log(e);
   }
+}
+
+function likeMessage(messageId) {
+  const payload = {
+    type: "like",
+    messageId: messageId,
+    sender: {
+      username: state.username,
+    },
+  };
+  socket.send(JSON.stringify(payload));
+}
+
+function dislikeMessage(messageId) {
+  const payload = {
+    type: "dislike",
+    messageId: messageId,
+    sender: {
+      username: state.username,
+    },
+  };
+  socket.send(JSON.stringify(payload));
 }
 
 async function main() {
