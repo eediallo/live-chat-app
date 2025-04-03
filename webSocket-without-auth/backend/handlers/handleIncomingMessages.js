@@ -6,17 +6,15 @@ export const handleIncomingMessages = async (message) => {
 
   try {
     const messageData = JSON.parse(msgString);
+    console.log(messageData);
 
     switch (messageData.type) {
       case "like":
-        return { ...(await saveLike(messageData)), type: "like" };
+        return await saveLike(messageData);
       case "dislike":
-        return { ...(await saveDislike(messageData)), type: "dislike" };
+        return await saveDislike(messageData);
       default:
-        return {
-          ...(await saveMsgFromWebsocketToDb(messageData)),
-          type: "message",
-        };
+        return await saveMsgFromWebsocketToDb(messageData);
     }
   } catch (error) {
     console.error("Error parsing message", error);
