@@ -1,4 +1,4 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 const likeSchema = new mongoose.Schema(
   {
@@ -7,11 +7,10 @@ const likeSchema = new mongoose.Schema(
       ref: "Message",
       required: true,
     },
-
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    
+    sender: {
+      id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      username: String,
     },
   },
   { timestamps: true }
