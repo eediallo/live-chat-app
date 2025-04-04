@@ -10,11 +10,12 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
     console.log(userInfo, "user info");
     switch (data.type) {
       case "like":
-        const { _doc: like } = await saveLike(data.userInfo.userId);
-        return { ...like, type: "like" };
+        return { ...(await saveLike(data, userInfo.userId)), type: "like" };
       case "dislike":
-        const { _doc: dislike } = await saveDislike(data, userInfo.userId);
-        return { ...dislike, type: "dislike" };
+        return {
+          ...(await saveDislike(data, userInfo.userId)),
+          type: "dislike",
+        };
 
       default:
         const { _doc: message } = await saveMsgFromWebsocketToDb(data);
