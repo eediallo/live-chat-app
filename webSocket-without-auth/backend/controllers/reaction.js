@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Like } from "../models/like.js";
 import { Dislike } from "../models/dislike.js";
 
-export const getLikesAndDislikes = async (req, res) => {
+export const getMessageReactionCounts = async (req, res) => {
   try {
     const likes = await Like.countDocuments({
       messageId: req.params.messageId,
