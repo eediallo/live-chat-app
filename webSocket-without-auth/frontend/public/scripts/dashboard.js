@@ -100,7 +100,6 @@ function sendMessageHandler(e) {
 sendMsgBtn.addEventListener("click", sendMessageHandler);
 
 function createMessageCard(message) {
-  console.log(message);
   const li = document.createElement("li");
   li.classList.add("message");
   li.setAttribute("data-message-id", message._id);
