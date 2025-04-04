@@ -1,21 +1,28 @@
 import { saveMsgFromWebsocketToDb } from "../controllers/messages.js";
-import { saveDislike, saveLike } from "../controllers/reaction.js";
+import {
+  getLikesDislikeCounts,
+  saveDislike,
+  saveLike,
+} from "../controllers/reaction.js";
 
 export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
   console.log(dataString, "INCOMING MESSAGE");
   try {
     const data = JSON.parse(dataString);
+    const { messageId } = data;
     const userInfo = userConnection.get(ws);
+    const userId = userInfo?.userId;
+    const likeDislikeCounts = await getLikesDislikeCounts(messageId);
     console.log(userInfo, "user info");
     switch (data.type) {
       case "like":
-        return { ...(await saveLike(data, userInfo.userId)), type: "like" };
+        console.log(likeDislikeCounts, "counts===>>>>>>");
+        const { _doc: like } = await saveLike(data, userId);
+        return { ...like, type: "like", ...likeDislikeCounts };
       case "dislike":
-        return {
-          ...(await saveDislike(data, userInfo.userId)),
-          type: "dislike",
-        };
+        const { _doc: dislike } = await saveDislike(data, userId);
+        return { ...dislike, type: "dislike", ...likeDislikeCounts };
 
       default:
         const { _doc: message } = await saveMsgFromWebsocketToDb(data);
