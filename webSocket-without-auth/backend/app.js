@@ -8,19 +8,34 @@ import http from "http";
 dotenv.config();
 import { handleIncomingMessages } from "./handlers/handleIncomingMessages.js";
 import { reactionRouter } from "./routes/reaction.js";
+import { User } from "./models/user.js";
 
 const app = express();
 const server = http.createServer(app);
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server, clientTracking: true });
+const userConnection = new Map();
 
 // wss connection event
-wss.on("connection", (ws) => {
+wss.on("connection", async (ws, req) => {
   console.log("New client connected");
+  const username = req.url.split("=")[1];
 
+  try {
+    const user = await User.findOne({ username });
+    if (user) {
+      userConnection.set(ws, { userId: user._id });
+    }
+  } catch (e) {
+    console.error("could not find user", e);
+  }
   // handle messages from clients
   ws.on("message", async (message) => {
-    const newMessage = await handleIncomingMessages(message);
+    const newMessage = await handleIncomingMessages(
+      message,
+      ws,
+      userConnection
+    );
     if (newMessage) {
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
@@ -33,6 +48,7 @@ wss.on("connection", (ws) => {
   // Handle client disconnection
   ws.on("close", () => {
     console.log("Client disconnected");
+    userConnection.delete(ws);
   });
 });
 
@@ -58,6 +74,7 @@ const start = async () => {
     server.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
+    console.log(server.address());
   } catch (err) {
     console.err(err);
   }
