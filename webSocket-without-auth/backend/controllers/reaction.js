@@ -2,47 +2,53 @@ import { StatusCodes } from "http-status-codes";
 import { Like } from "../models/like.js";
 import { Dislike } from "../models/dislike.js";
 
-export const likeMessage = async (req, res) => {
-  const { messageId, userId } = req.params;
-
-  console.log(messageId, userId);
-
-  if (!messageId || !userId) {
-    console.log("messageId and usernameId must be provided");
-    return;
-  }
-
+export const saveLike = async (likeData, userId) => {
+  const { messageId } = likeData;
   try {
+    //check if the user already reacted (either liked or disliked)
+    const existingLike = await Like.findOne({ messageId, userId });
+    const existingDislike = await Dislike.findOne({ messageId, userId });
+
+    if (existingLike) {
+      console.error("You have already liked this message.");
+      return;
+    }
+
+    if (existingDislike) {
+      // If the user has already disliked the message, remove the dislike first
+      await Dislike.deleteOne({ messageId, userId });
+    }
+
     const like = await Like.create({ messageId, userId });
-    res
-      .status(StatusCodes.CREATED)
-      .json({ msg: `message ${messageId} liked`, like });
+    return like;
   } catch (e) {
-    console.log(e);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Failed to like message" });
+    console.error("Error liking message", e);
+    return null;
   }
 };
 
-export const dislikeMessage = async (req, res) => {
-  const { messageId, userId } = req.params;
-  console.log(messageId, userId);
-  if (!messageId || !userId) {
-    console.log("messageId and usernameId must be provided");
-    return;
-  }
-
+export const saveDislike = async (dislikeData, userId) => {
+  const { messageId } = dislikeData;
   try {
-    const like = await Dislike.create({ messageId, userId });
-    res
-      .status(StatusCodes.CREATED)
-      .json({ msg: `message ${messageId} liked`, like });
+    //check if the user already reacted (either liked or disliked)
+    const existingLike = await Like.findOne({ messageId, userId });
+    const existingDislike = await Dislike.findOne({ messageId, userId });
+
+    if (existingDislike) {
+      console.error("You have already disliked this message.");
+      return;
+    }
+
+    if (existingLike) {
+      // If the user has already disliked the message, remove the dislike first
+      await Like.deleteOne({ messageId, userId });
+    }
+
+    const dislike = await Dislike.create({ messageId, userId: userId });
+    return dislike;
   } catch (e) {
-    console.log(e);
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Failed to like message" });
+    console.error("Error liking message", e);
+    return null;
   }
 };
 
