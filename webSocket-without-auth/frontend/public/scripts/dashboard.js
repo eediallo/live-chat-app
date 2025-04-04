@@ -70,13 +70,13 @@ socket.onmessage = (evt) => {
   }
 };
 
-socket.onerror = () => {
+socket.onerror = (evt) => {
   console.log("SOMETHING WENT WRONG..");
+  console.log(evt.data);
 };
 
-socket.onclose = (evt) => {
+socket.onclose = () => {
   console.log("WEBSOCKET CLOSE...");
-  console.log(evt.data);
 };
 
 async function sendMessage(text) {
@@ -91,7 +91,6 @@ async function sendMessage(text) {
       },
       createdAt: timestamp,
     };
-    console.log(payload);
     socket.send(JSON.stringify(payload));
   } else {
     console.error("WebSocket is not open. Cannot send message.");
@@ -219,7 +218,6 @@ async function fetchReactionsForMessages(messages) {
 
 async function main() {
   await fetchAllMessagesForAllUsers();
-  console.log(state.messages);
   render();
 }
 
