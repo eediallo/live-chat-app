@@ -18,9 +18,32 @@ socket.onopen = () => {
 };
 
 socket.onmessage = (evt) => {
-  const msg = JSON.parse(evt.data);
-  state.messages.push(msg);
-  render();
+  const data = JSON.parse(evt.data);
+
+  console.log("Message from server==>");
+
+  if (data.type === "message") {
+    state.messages.push(data);
+    render();
+  } else if (data.type === "reaction_update") {
+    // Update message reaction counts
+    const message = state.messages.find((m) => m._id === data.messageId);
+    if (message) {
+      message.likes = data.likes;
+      message.dislikes = data.dislikes;
+
+      // Update UI for this specific message
+      const messageEl = document.querySelector(
+        `[data-message-id="${data.messageId}"]`
+      );
+      if (messageEl) {
+        messageEl.querySelector(".like-btn").textContent = `👍 ${data.likes}`;
+        messageEl.querySelector(
+          ".dislike-btn"
+        ).textContent = `👎 ${data.dislikes}`;
+      }
+    }
+  }
 };
 
 socket.onerror = () => {
@@ -51,16 +74,33 @@ async function sendMessage(text) {
   }
 }
 
+function likeMessagePayload(messageId) {
+  const payload = {
+    type: "like",
+    messageId: messageId,
+  };
+  socket.send(JSON.stringify(payload));
+}
+
+function dislikeMessagePayload(messageId) {
+  const payload = {
+    type: "dislike",
+    messageId: messageId,
+  };
+  socket.send(JSON.stringify(payload));
+}
+
 function sendMessageHandler(e) {
   e.preventDefault();
-  const message = messageInput.value;
-  sendMessage(message);
+  const text = messageInput.value;
+  sendMessage(text);
   messageInput.value = "";
 }
 
 sendMsgBtn.addEventListener("click", sendMessageHandler);
 
 function createMessageCard(message) {
+  console.log(message);
   const li = document.createElement("li");
   li.classList.add("message");
   li.setAttribute("data-message-id", message._id);
@@ -84,18 +124,16 @@ function createMessageCard(message) {
   const likeButton = document.createElement("button");
   likeButton.textContent = `👍 ${message.likes || 0}`;
   likeButton.classList.add("like-btn");
-  likeButton.addEventListener("click", async () => {
-    const newLikes = await likeMessage(message._id, message.sender.id);
-    likeButton.textContent = `👍 ${newLikes}`; // Update UI
+  likeButton.addEventListener("click", () => {
+    likeMessagePayload(message._id);
   });
 
   // Dislike Button
   const dislikeButton = document.createElement("button");
   dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
   dislikeButton.classList.add("dislike-btn");
-  dislikeButton.addEventListener("click", async () => {
-    const newDislikes = await dislikeMessage(message._id, message.sender.id);
-    dislikeButton.textContent = `👎 ${newDislikes}`; // Update UI
+  dislikeButton.addEventListener("click", () => {
+    dislikeMessagePayload(message._id);
   });
 
   li.append(sender, time, text, likeButton, dislikeButton);
@@ -162,62 +200,6 @@ async function fetchLikesAndDislikes(messageId) {
   } catch (e) {
     console.error("Error fetching likes and dislikes", e);
     return { likes: 0, dislikes: 0 }; // Default fallback
-  }
-}
-
-function likeMessagePayload(messageId) {
-  const payload = {
-    type: "like",
-    messageId: messageId,
-  };
-  socket.send(JSON.stringify(payload));
-}
-
-function dislikeMessagePayload(messageId) {
-  const payload = {
-    type: "dislike",
-    messageId: messageId,
-  };
-  socket.send(JSON.stringify(payload));
-}
-
-async function likeMessage(messageId, userId) {
-  try {
-    const response = await fetch(
-      `${baseUrl}/api/v1/reactions/${messageId}/${userId}/like`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    if (!response.ok) throw new Error("Failed to like message");
-
-    const { likes } = await fetchLikesAndDislikes(messageId); // Get updated count
-    return likes;
-  } catch (e) {
-    console.error("Error liking message", e);
-    return 0; // Return default if an error occurs
-  }
-}
-
-async function dislikeMessage(messageId, userId) {
-  try {
-    const response = await fetch(
-      `${baseUrl}/api/v1/reactions/${messageId}/${userId}/dislike/`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    if (!response.ok) throw new Error("Failed to dislike message");
-
-    const { dislikes } = await fetchLikesAndDislikes(messageId); // Get updated count
-    return dislikes;
-  } catch (e) {
-    console.error("Error disliking message", e);
-    return 0;
   }
 }
 
