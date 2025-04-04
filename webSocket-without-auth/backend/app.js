@@ -22,10 +22,13 @@ wss.on("connection", async (ws, req) => {
   const username = req.url.split("=")[1];
 
   try {
-    const user = await User.findOne({ username });
-    if (user) {
-      userConnection.set(ws, { userId: user._id });
+    let user = await User.findOne({ username });
+    if (!user) {
+      // save to db if user does not exist
+      user = await User.create({ username });
     }
+
+    userConnection.set(ws, { userId: user._id });
   } catch (e) {
     console.error("could not find user", e);
   }
@@ -36,6 +39,7 @@ wss.on("connection", async (ws, req) => {
       ws,
       userConnection
     );
+    console.log(newMessage, "message to sent to client");
     if (newMessage) {
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
