@@ -177,19 +177,7 @@ async function fetchAllMessagesForAllUsers() {
     const { messages } = await resp.json();
 
     // Fetch likes and dislikes for each message
-    for (let message of messages) {
-      const reactionsResp = await fetch(
-        `${baseUrl}/api/v1/reactions/${message._id}`
-      );
-      if (reactionsResp.ok) {
-        const { likes, dislikes } = await reactionsResp.json();
-        message.likes = likes;
-        message.dislikes = dislikes;
-      } else {
-        message.likes = 0;
-        message.dislikes = 0;
-      }
-    }
+    await fetchReactionsForMessages(messages);
 
     state.messages = messages;
     render(); // Render after updating all messages
@@ -198,44 +186,25 @@ async function fetchAllMessagesForAllUsers() {
   }
 }
 
-async function fetchLikesAndDislikes(messageId) {
-  try {
-    const response = await fetch(`${baseUrl}/api/v1/reactions/${messageId}`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch reactions");
-    }
-    return await response.json(); // Should return { likes: number, dislikes: number }
-  } catch (e) {
-    console.error("Error fetching likes and dislikes", e);
-    return { likes: 0, dislikes: 0 }; // Default fallback
-  }
-}
-
-async function updateMessageReactions(messageId) {
-  try {
-    const response = await fetch(`${baseUrl}/api/v1/reactions/${messageId}`);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch reaction counts");
-    }
-
-    const { likes, dislikes } = await response.json();
-
-    // Find the message in the UI and update the like/dislike counts
-    const messageEl = document.querySelector(
-      `[data-message-id="${messageId}"]`
+async function fetchReactionsForMessages(messages) {
+  for (let message of messages) {
+    const reactionsResp = await fetch(
+      `${baseUrl}/api/v1/reactions/${message._id}`
     );
-    if (messageEl) {
-      messageEl.querySelector(".like-btn").textContent = `👍 ${likes}`;
-      messageEl.querySelector(".dislike-btn").textContent = `👎 ${dislikes}`;
+    if (reactionsResp.ok) {
+      const { likes, dislikes } = await reactionsResp.json();
+      message.likes = likes;
+      message.dislikes = dislikes;
+    } else {
+      message.likes = 0;
+      message.dislikes = 0;
     }
-  } catch (error) {
-    console.error("Error updating reactions:", error);
   }
 }
 
 async function main() {
   await fetchAllMessagesForAllUsers();
+  console.log(state.messages);
   render();
 }
 
