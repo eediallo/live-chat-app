@@ -9,6 +9,7 @@ dotenv.config();
 import { handleIncomingMessages } from "./handlers/handleIncomingMessages.js";
 import { reactionRouter } from "./routes/reaction.js";
 import { User } from "./models/user.js";
+import { notFound } from "./middleware/notFound.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -71,6 +72,7 @@ app.use(express.static(publicDir)); // serve static files
 
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/reactions", reactionRouter);
+app.use(notFound);
 
 const start = async () => {
   try {
