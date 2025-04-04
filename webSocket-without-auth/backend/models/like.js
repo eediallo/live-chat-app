@@ -17,4 +17,7 @@ const likeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// ensure user cannot like more than once
+likeSchema.index({ messageId: 1, userId: 1 }, { unique: true });
+
 export const Like = mongoose.model("Like", likeSchema);
