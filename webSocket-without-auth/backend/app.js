@@ -28,7 +28,7 @@ wss.on("connection", async (ws, req) => {
       user = await User.create({ username });
     }
 
-    userConnection.set(ws, { userId: user._id });
+    userConnection.set(ws, { userId: user._id, username });
   } catch (e) {
     console.error("could not find user", e);
   }
@@ -78,7 +78,6 @@ const start = async () => {
     server.listen(port, () =>
       console.log(`Server is listening on port ${port}...`)
     );
-    console.log(server.address());
   } catch (err) {
     console.err(err);
   }
