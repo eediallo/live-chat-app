@@ -27,19 +27,6 @@ export const saveLike = async (likeData, userId) => {
   }
 };
 
-export const getLikesDislikeCounts = async (messageId) => {
-  try {
-    const [likes, dislikes] = await Promise.all([
-      Like.countDocuments({ messageId }),
-      Dislike.countDocuments({ messageId }),
-    ]);
-    return { likes, dislikes };
-  } catch (err) {
-    console.error("Failed to get likes and dislikes counts");
-    return null;
-  }
-};
-
 export const saveDislike = async (dislikeData, userId) => {
   const { messageId } = dislikeData;
   try {
@@ -64,6 +51,20 @@ export const saveDislike = async (dislikeData, userId) => {
     return null;
   }
 };
+
+export const getReactionCounts = async (messageId) => {
+  try {
+    const [likes, dislikes] = await Promise.all([
+      Like.countDocuments({ messageId }),
+      Dislike.countDocuments({ messageId }),
+    ]);
+    return { likes, dislikes };
+  } catch (err) {
+    console.error("Failed to get reaction counts");
+    return null;
+  }
+};
+
 
 export const getLikesAndDislikes = async (req, res) => {
   try {
