@@ -1,6 +1,5 @@
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
-const nameInput = document.querySelector("#name-input");
 const messageContainer = document.querySelector("#messages-container");
 const errorMsgEl = document.querySelector("#errorMsg");
 
@@ -9,12 +8,12 @@ const state = {
   username: null,
 };
 
-const socket = new WebSocket("ws://localhost:3000", [], {
-  headers: { username: state.username },
-});
+const user = prompt("Please enter your name");
+let socket = new WebSocket(`ws://localhost:3000?username=${user}`);
 const baseUrl = "http://localhost:3000";
 
 socket.onopen = () => {
+  state.username = user;
   console.log("SOCKET OPENED");
 };
 
@@ -33,17 +32,19 @@ socket.onclose = (evt) => {
   console.log(evt.data);
 };
 
-async function sendMessage(username, text) {
+async function sendMessage(text) {
+  state.username = user;
   if (socket.readyState === WebSocket.OPEN) {
     const timestamp = new Date().toISOString();
     const payload = {
       type: "message",
       text,
       sender: {
-        username: username,
+        username: state.username,
       },
       createdAt: timestamp,
     };
+    console.log(payload);
     socket.send(JSON.stringify(payload));
   } else {
     console.error("WebSocket is not open. Cannot send message.");
@@ -53,23 +54,8 @@ async function sendMessage(username, text) {
 function sendMessageHandler(e) {
   e.preventDefault();
   const message = messageInput.value;
-  let sender = nameInput.value;
-
-  if (state.username) {
-    sender = state.username;
-  }
-
-  if (!message || !sender) {
-    return;
-  }
-
-  sendMessage(sender, message);
+  sendMessage(message);
   messageInput.value = "";
-
-  if (!state.username) {
-    state.username = sender;
-    nameInput.style.display = "none";
-  }
 }
 
 sendMsgBtn.addEventListener("click", sendMessageHandler);
