@@ -1,6 +1,6 @@
 import { saveMsgFromWebsocketToDb } from "../controllers/messages.js";
 import {
-  getLikesDislikeCounts,
+  getReactionCounts,
   saveDislike,
   saveLike,
 } from "../controllers/reaction.js";
@@ -15,11 +15,11 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
     switch (data.type) {
       case "like":
         const { _doc: like } = await saveLike(data, userId);
-        const likesCounts = await getLikesDislikeCounts(messageId);
+        const likesCounts = await getReactionCounts(messageId);
         return { ...like, type: "like", ...likesCounts };
       case "dislike":
         const { _doc: dislike } = await saveDislike(data, userId);
-        const dislikesCounts = await getLikesDislikeCounts(messageId);
+        const dislikesCounts = await getReactionCounts(messageId);
         return { ...dislike, type: "dislike", ...dislikesCounts };
 
       default:
