@@ -16,7 +16,6 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
       case "like":
         const { _doc: like } = await saveLike(data, userId);
         const likesCounts = await getLikesDislikeCounts(messageId);
-        console.log(likesCounts, "likesCounts");
         return { ...like, type: "like", ...likesCounts };
       case "dislike":
         const { _doc: dislike } = await saveDislike(data, userId);
