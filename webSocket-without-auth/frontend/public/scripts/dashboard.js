@@ -19,8 +19,6 @@ socket.onopen = () => {
 
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
-  console.log(data, "======>from server");
-
   switch (data.type) {
     case "message":
       state.messages.push(data);
