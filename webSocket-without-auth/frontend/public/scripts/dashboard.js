@@ -20,29 +20,38 @@ socket.onopen = () => {
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
 
-  console.log("Message from server==>");
+  switch (data.type) {
+    case "message":
+      state.messages.push(data);
+      render();
+      break;
 
-  if (data.type === "message") {
-    state.messages.push(data);
-    render();
-  } else if (data.type === "reaction_update") {
-    // Update message reaction counts
-    const message = state.messages.find((m) => m._id === data.messageId);
-    if (message) {
-      message.likes = data.likes;
-      message.dislikes = data.dislikes;
+    case "like":
+    case "dislike":
+      // Update message reaction counts
+      const message = state.messages.find((m) => m._id === data.messageId);
+      console.log(message);
+      if (message) {
+        message.likes = data.likes || 0;
+        message.dislikes = data.dislikes || 0;
+      }
 
       // Update UI for this specific message
       const messageEl = document.querySelector(
         `[data-message-id="${data.messageId}"]`
       );
       if (messageEl) {
-        messageEl.querySelector(".like-btn").textContent = `👍 ${data.likes}`;
-        messageEl.querySelector(
-          ".dislike-btn"
-        ).textContent = `👎 ${data.dislikes}`;
+        messageEl.querySelector(".like-btn").textContent = `👍 ${
+          data.likes || 0
+        }`;
+        messageEl.querySelector(".dislike-btn").textContent = `👎 ${
+          data.dislikes || 0
+        }`;
       }
-    }
+      break;
+
+    default:
+      console.warn("Unknown message type:", data.type);
   }
 };
 
