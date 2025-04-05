@@ -83,7 +83,7 @@ export const saveDislikeToDb = async (dislikeData, userId) => {
   }
 };
 
-export const getReactionCounts = async (messageId) => {
+export const getMessageReactionCounts = async (messageId) => {
   try {
     const [likes, dislikes] = await Promise.all([
       Like.countDocuments({ messageId }),
@@ -110,7 +110,7 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
         return { ...like, type: "like", ...likesCounts };
       case "dislike":
         const { _doc: dislike } = await saveDislikeToDb(data, userId);
-        const dislikesCounts = await getReactionCounts(messageId);
+        const dislikesCounts = await getMessageReactionCounts(messageId);
         return { ...dislike, type: "dislike", ...dislikesCounts };
 
       default:
