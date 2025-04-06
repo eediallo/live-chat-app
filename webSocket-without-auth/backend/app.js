@@ -36,7 +36,6 @@ wss.on("connection", async (ws, req) => {
       type: "join",
       message: `${username} has joined the chat!`,
     });
-    console.log(joinMessage, "<===JOIN MESSAGE===");
     wss.clients.forEach((client) => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
         client.send(joinMessage);
@@ -52,7 +51,6 @@ wss.on("connection", async (ws, req) => {
       ws,
       userConnection
     );
-    console.log(newMessage, "message to sent to client");
     if (newMessage) {
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
