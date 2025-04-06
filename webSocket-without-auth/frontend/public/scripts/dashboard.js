@@ -8,6 +8,13 @@ const state = {
   username: null,
 };
 
+function createAndAppendElToContainer(tag, className, content, container) {
+  const element = document.createElement(tag);
+  element.classList.add(className);
+  element.textContent = content;
+  container.append(element);
+}
+
 const user = prompt("Please enter your name");
 let socket = new WebSocket(`ws://localhost:3000?username=${user}`);
 const baseUrl = "http://localhost:3000";
@@ -41,10 +48,12 @@ socket.onmessage = (evt) => {
 
     case "join":
       // Display join message on the UI
-      const joinMessageEl = document.createElement("div");
-      joinMessageEl.classList.add("join-message");
-      joinMessageEl.textContent = data.message;
-      messageContainer.append(joinMessageEl);
+      createAndAppendElToContainer(
+        "div",
+        "join-message",
+        data.message,
+        messageContainer
+      );
       break;
 
     default:
@@ -180,10 +189,12 @@ function render() {
 
     if (messageDate !== currentDate) {
       currentDate = messageDate;
-      const dateHeader = document.createElement("div");
-      dateHeader.classList.add("date-header");
-      dateHeader.textContent = currentDate;
-      messageContainer.append(dateHeader);
+      createAndAppendElToContainer(
+        "div",
+        "date-header",
+        currentDate,
+        messageContainer
+      );
     }
 
     const messageCard = createMessageCard(message);
