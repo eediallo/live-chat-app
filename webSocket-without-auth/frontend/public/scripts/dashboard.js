@@ -9,11 +9,10 @@ const pageInfo = document.querySelector("#page-info");
 const state = {
   messages: [],
   username: null,
-};
-
-const paginationState = {
-  currentPage: 1,
-  totalPages: 1,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+  },
 };
 
 let isSocketOpen = false;
@@ -47,10 +46,10 @@ socket.onopen = async () => {
       throw new Error(`Failed to fetch total pages: ${resp.status}`);
     }
     const { numOfPages } = await resp.json();
-    paginationState.totalPages = numOfPages;
+    state.pagination.totalPages = numOfPages;
 
     // Fetch the last page of messages
-    await fetchAllMessagesForAllUsers(paginationState.totalPages);
+    await fetchAllMessagesForAllUsers(state.pagination.totalPages);
     render();
   } catch (e) {
     console.error("Error fetching total pages or messages:", e);
@@ -236,8 +235,8 @@ async function fetchAllMessagesForAllUsers(page, limit = 5) {
       throw new Error(`Failed to fetch messages: ${resp.status}`);
     }
     const { messages, numOfPages } = await resp.json();
-    paginationState.totalPages = numOfPages;
-    paginationState.currentPage = page;
+    state.pagination.totalPages = numOfPages;
+    state.pagination.currentPage = page;
 
     // Replace the current messages with the new ones
     state.messages = messages;
@@ -266,23 +265,23 @@ async function fetchReactionsForMessages(messages) {
 }
 
 function updatePaginationControls() {
-  pageInfo.textContent = `Page ${paginationState.currentPage} of ${paginationState.totalPages}`;
-  prevPageBtn.disabled = paginationState.currentPage === 1;
+  pageInfo.textContent = `Page ${state.pagination.currentPage} of ${state.pagination.totalPages}`;
+  prevPageBtn.disabled = state.pagination.currentPage === 1;
   nextPageBtn.disabled =
-    paginationState.currentPage === paginationState.totalPages;
+    state.pagination.currentPage === state.pagination.totalPages;
 }
 
 prevPageBtn.addEventListener("click", () => {
-  if (isSocketOpen && paginationState.currentPage > 1) {
-    fetchAllMessagesForAllUsers(paginationState.currentPage - 1);
+  if (isSocketOpen && state.pagination.currentPage > 1) {
+    fetchAllMessagesForAllUsers(state.pagination.currentPage - 1);
   }
 });
 
 nextPageBtn.addEventListener("click", () => {
   if (
     isSocketOpen &&
-    paginationState.currentPage < paginationState.totalPages
+    state.pagination.currentPage < state.pagination.totalPages
   ) {
-    fetchAllMessagesForAllUsers(paginationState.currentPage + 1);
+    fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
   }
 });
