@@ -9,12 +9,12 @@ const state = {
 };
 
 function createAndAppendElToContainer(tag, className, content, container) {
-  const element = createElement(tag, content);
+  const element = createDOMElement(tag, content);
   element.classList.add(className);
   container.append(element);
 }
 
-function createElement(tag, content) {
+function createDOMElement(tag, content) {
   const element = document.createElement(tag, content);
   element.textContent = content;
   return element;
@@ -156,9 +156,9 @@ function createMessageCard(message) {
     minute: "2-digit",
   });
 
-  const time = createElement("i", ` ${timestamp}`);
-  const sender = createElement("b", message.sender.username);
-  const text = createElement("p", message.text);
+  const time = createDOMElement("i", ` ${timestamp}`);
+  const sender = createDOMElement("b", message.sender.username);
+  const text = createDOMElement("p", message.text);
 
   // Like Button
   const likeButton = createElement("button", `👍 ${message.likes || 0}`);
@@ -168,7 +168,7 @@ function createMessageCard(message) {
   });
 
   // Dislike Button
-  const dislikeButton = createElement("button", `👎 ${message.dislikes || 0}`);
+  const dislikeButton = createDOMElement("button", `👎 ${message.dislikes || 0}`);
   dislikeButton.classList.add("dislike-btn");
   dislikeButton.addEventListener("click", () => {
     dislikeMessagePayload(message._id);
