@@ -58,7 +58,6 @@ socket.onopen = async () => {
 
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
-  console.log("Received WebSocket message:", data);
 
   switch (data.type) {
     case "message":
