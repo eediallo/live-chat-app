@@ -56,6 +56,24 @@ socket.onopen = async () => {
   }
 };
 
+// Create a function to display a join message in a dialog box
+function showJoinMessageDialog(message) {
+  const dialog = document.createElement("dialog");
+  dialog.textContent = message;
+
+  const closeButton = document.createElement("button");
+  closeButton.textContent = "Close";
+  closeButton.addEventListener("click", () => {
+    dialog.close();
+    dialog.remove();
+  });
+
+  dialog.appendChild(closeButton);
+  document.body.appendChild(dialog);
+  dialog.showModal();
+}
+
+// Update the WebSocket message handler to use the dialog for join messages
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
 
@@ -63,10 +81,9 @@ socket.onmessage = (evt) => {
     case "message":
       state.messages.push(data);
 
-      // Check if the current page has more than 5 messages
       if (state.messages.length > 5) {
         state.pagination.currentPage += 1;
-        state.messages = [data]; // Start a new page with the new message
+        state.messages = [data];
         state.pagination.totalPages = state.pagination.currentPage;
       }
 
@@ -82,12 +99,7 @@ socket.onmessage = (evt) => {
       break;
 
     case "join":
-      createAndAppendElToContainer(
-        "div",
-        "join-message",
-        data.message,
-        messageContainer
-      );
+      showJoinMessageDialog(data.message);
       break;
 
     default:
