@@ -106,7 +106,7 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
     switch (data.type) {
       case "like":
         const { _doc: like } = await saveLikeToDb(data, userId);
-        const likesCounts = await getReactionCounts(messageId);
+        const likesCounts = await getMessageReactionCounts(messageId);
         return { ...like, type: "like", ...likesCounts };
       case "dislike":
         const { _doc: dislike } = await saveDislikeToDb(data, userId);
