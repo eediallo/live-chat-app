@@ -1,0 +1,135 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 800px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+h1{
+    text-align: center;
+}
+
+form{
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input{
+    padding: 10px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#send-msg-btn {
+    background-color: green;
+    color: white;
+    padding: 10px;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+#send-msg-btn:hover {
+    background-color: green;
+}
+
+.message {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    list-style: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.message:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Add styles for the pagination controls */
+#pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#prev-page-btn, #next-page-btn {
+    background-color: green;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#prev-page-btn:disabled, #next-page-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#prev-page-btn:hover:not(:disabled), #next-page-btn:hover:not(:disabled) {
+    background-color: green;
+}
+
+#page-info {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.date-header {
+    text-align: center;
+    display: flex;
+    align-items: center;
+}
+
+.date-header::before,
+.date-header::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid #ccc;
+    margin: 0 10px;
+}
+
+/* Style the dialog box for join messages */
+dialog {
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+}
+
+dialog button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+dialog button:hover {
+    background-color: #0056b3;
+}

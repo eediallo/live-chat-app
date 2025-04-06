@@ -29,7 +29,13 @@ function createDOMElement(tag, content) {
   return element;
 }
 
+// Style the prompt input for username
 const user = prompt("Please enter your name");
+if (!user) {
+  alert("Username is required to join the chat.");
+  throw new Error("Username is required");
+}
+
 let socket = new WebSocket(`ws://localhost:3000?username=${user}`);
 const baseUrl = "http://localhost:3000";
 
@@ -330,4 +336,3 @@ nextPageBtn.addEventListener("click", () => {
     fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
   }
 });
-
