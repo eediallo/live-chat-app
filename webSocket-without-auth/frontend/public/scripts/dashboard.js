@@ -2,11 +2,21 @@ const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
 const errorMsgEl = document.querySelector("#errorMsg");
+const prevPageBtn = document.querySelector("#prev-page-btn");
+const nextPageBtn = document.querySelector("#next-page-btn");
+const pageInfo = document.querySelector("#page-info");
 
 const state = {
   messages: [],
   username: null,
 };
+
+const paginationState = {
+  currentPage: 1,
+  totalPages: 1,
+};
+
+let isSocketOpen = false;
 
 function createAndAppendElToContainer(tag, className, content, container) {
   const element = createDOMElement(tag, content);
@@ -26,6 +36,7 @@ const baseUrl = "http://localhost:3000";
 
 socket.onopen = async () => {
   state.username = user;
+  isSocketOpen = true;
   console.log("SOCKET OPENED");
 
   // Fetch and display all previous messages
@@ -72,6 +83,7 @@ socket.onerror = (evt) => {
 };
 
 socket.onclose = () => {
+  isSocketOpen = false;
   console.log("WEBSOCKET CLOSE...");
 };
 
@@ -168,7 +180,10 @@ function createMessageCard(message) {
   });
 
   // Dislike Button
-  const dislikeButton = createDOMElement("button", `👎 ${message.dislikes || 0}`);
+  const dislikeButton = createDOMElement(
+    "button",
+    `👎 ${message.dislikes || 0}`
+  );
   dislikeButton.classList.add("dislike-btn");
   dislikeButton.addEventListener("click", () => {
     dislikeMessagePayload(message._id);
@@ -200,21 +215,24 @@ function render() {
   });
 }
 
-async function fetchAllMessagesForAllUsers() {
+async function fetchAllMessagesForAllUsers(page = 1, limit = 5) {
   try {
-    const resp = await fetch(`${baseUrl}/api/v1/messages/all`);
+    const url = `${baseUrl}/api/v1/messages/all?page=${page}&limit=${limit}`;
+    const resp = await fetch(url);
     if (!resp.ok) {
       throw new Error(`Failed to fetch messages: ${resp.status}`);
     }
-    const { messages } = await resp.json();
+    const { messages, numOfPages } = await resp.json();
+    paginationState.totalPages = numOfPages;
+    paginationState.currentPage = page;
 
-    // Fetch likes and dislikes for each message
-    await fetchReactionsForMessages(messages);
-
+    // Replace the current messages with the new ones
     state.messages = messages;
-    render(); // Render after updating all messages
+
+    render();
+    updatePaginationControls();
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }
 
@@ -233,3 +251,25 @@ async function fetchReactionsForMessages(messages) {
     }
   }
 }
+
+function updatePaginationControls() {
+  pageInfo.textContent = `Page ${paginationState.currentPage} of ${paginationState.totalPages}`;
+  prevPageBtn.disabled = paginationState.currentPage === 1;
+  nextPageBtn.disabled =
+    paginationState.currentPage === paginationState.totalPages;
+}
+
+prevPageBtn.addEventListener("click", () => {
+  if (isSocketOpen && paginationState.currentPage > 1) {
+    fetchAllMessagesForAllUsers(paginationState.currentPage - 1);
+  }
+});
+
+nextPageBtn.addEventListener("click", () => {
+  if (
+    isSocketOpen &&
+    paginationState.currentPage < paginationState.totalPages
+  ) {
+    fetchAllMessagesForAllUsers(paginationState.currentPage + 1);
+  }
+});
