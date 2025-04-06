@@ -56,7 +56,7 @@ socket.onopen = async () => {
   }
 };
 
-// Create a function to display a join message in a dialog box
+//display  join message in a dialog box
 function showJoinMessageDialog(message) {
   const dialog = document.createElement("dialog");
   dialog.textContent = message;
@@ -331,16 +331,3 @@ nextPageBtn.addEventListener("click", () => {
   }
 });
 
-// Add an event listener to detect when the user scrolls to the bottom of the message container
-messageContainer.addEventListener("scroll", async () => {
-  const isAtBottom =
-    messageContainer.scrollTop + messageContainer.clientHeight >=
-    messageContainer.scrollHeight;
-
-  if (
-    isAtBottom &&
-    state.pagination.currentPage < state.pagination.totalPages
-  ) {
-    await fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
-  }
-});
