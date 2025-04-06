@@ -58,24 +58,32 @@ socket.onopen = async () => {
 
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
+  console.log("Received WebSocket message:", data);
+
   switch (data.type) {
     case "message":
       state.messages.push(data);
+
+      // Check if the current page has more than 5 messages
+      if (state.messages.length > 5) {
+        console.log("Message count exceeds 5. Moving to a new page...");
+        state.pagination.currentPage += 1;
+        state.messages = [data]; // Start a new page with the new message
+        state.pagination.totalPages = state.pagination.currentPage;
+      }
+
       render();
       break;
 
     case "like":
-      // Update message reaction counts for likes
       updateMessageReactionsUI(data);
       break;
 
     case "dislike":
-      // Update message reaction counts for dislikes
       updateMessageReactionsUI(data);
       break;
 
     case "join":
-      // Display join message on the UI
       createAndAppendElToContainer(
         "div",
         "join-message",
@@ -283,5 +291,19 @@ nextPageBtn.addEventListener("click", () => {
     state.pagination.currentPage < state.pagination.totalPages
   ) {
     fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
+  }
+});
+
+// Add an event listener to detect when the user scrolls to the bottom of the message container
+messageContainer.addEventListener("scroll", async () => {
+  const isAtBottom =
+    messageContainer.scrollTop + messageContainer.clientHeight >=
+    messageContainer.scrollHeight;
+
+  if (
+    isAtBottom &&
+    state.pagination.currentPage < state.pagination.totalPages
+  ) {
+    await fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
   }
 });
