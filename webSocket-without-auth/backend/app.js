@@ -30,6 +30,18 @@ wss.on("connection", async (ws, req) => {
     }
 
     userConnection.set(ws, { userId: user._id, username });
+
+    // Notify all previously connected clients about the new connection with the user's name
+    const joinMessage = JSON.stringify({
+      type: "join",
+      message: `${username} has joined the chat!`,
+    });
+    console.log(joinMessage, "<===JOIN MESSAGE===");
+    wss.clients.forEach((client) => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(joinMessage);
+      }
+    });
   } catch (e) {
     console.error("could not find user", e);
   }
