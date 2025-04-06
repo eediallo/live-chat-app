@@ -5,6 +5,7 @@ const errorMsgEl = document.querySelector("#errorMsg");
 const prevPageBtn = document.querySelector("#prev-page-btn");
 const nextPageBtn = document.querySelector("#next-page-btn");
 const pageInfo = document.querySelector("#page-info");
+const usernameEl = document.querySelector("#username");
 
 const state = {
   messages: [],
@@ -42,6 +43,7 @@ const baseUrl = "http://localhost:3000";
 socket.onopen = async () => {
   state.username = user;
   isSocketOpen = true;
+  usernameEl.textContent = user;
   console.log("SOCKET OPENED");
 
   try {
