@@ -226,10 +226,3 @@ async function fetchReactionsForMessages(messages) {
     }
   }
 }
-
-// async function main() {
-//   await fetchAllMessagesForAllUsers();
-//   render();
-// }
-
-// window.onload = main;
