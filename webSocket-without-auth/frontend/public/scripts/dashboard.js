@@ -161,7 +161,7 @@ function createMessageCard(message) {
   const text = createDOMElement("p", message.text);
 
   // Like Button
-  const likeButton = createElement("button", `👍 ${message.likes || 0}`);
+  const likeButton = createDOMElement("button", `👍 ${message.likes || 0}`);
   likeButton.classList.add("like-btn");
   likeButton.addEventListener("click", () => {
     likeMessagePayload(message._id);
