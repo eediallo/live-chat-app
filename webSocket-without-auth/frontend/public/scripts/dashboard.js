@@ -31,42 +31,12 @@ socket.onmessage = (evt) => {
 
     case "like":
       // Update message reaction counts for likes
-      const likedMessage = state.messages.find((m) => m._id === data.messageId);
-      if (likedMessage) {
-        likedMessage.likes = data.likes || 0;
-      }
-
-      // Update UI for this specific message
-      const likedMessageEl = document.querySelector(
-        `[data-message-id="${data.messageId}"]`
-      );
-      if (likedMessageEl) {
-        likedMessageEl.querySelector(".like-btn").textContent = `👍 ${
-          data.likes || 0
-        }`;
-      }
-      render();
+      updateMessageReactionsUI(data);
       break;
 
     case "dislike":
       // Update message reaction counts for dislikes
-      const dislikedMessage = state.messages.find(
-        (m) => m._id === data.messageId
-      );
-      if (dislikedMessage) {
-        dislikedMessage.dislikes = data.dislikes || 0;
-      }
-
-      // Update UI for this specific message
-      const dislikedMessageEl = document.querySelector(
-        `[data-message-id="${data.messageId}"]`
-      );
-      if (dislikedMessageEl) {
-        dislikedMessageEl.querySelector(".dislike-btn").textContent = `👎 ${
-          data.dislikes || 0
-        }`;
-      }
-      render();
+      updateMessageReactionsUI(data);
       break;
 
     case "join":
@@ -90,6 +60,34 @@ socket.onerror = (evt) => {
 socket.onclose = () => {
   console.log("WEBSOCKET CLOSE...");
 };
+
+function updateMessageReactionsUI(data) {
+  const message = state.messages.find((m) => m._id === data.messageId);
+  if (message) {
+    data.type === "like"
+      ? (message.likes = data.likes || 0)
+      : data.type === "dislike"
+      ? message.dislikes
+      : data.dislikes || 0;
+  }
+
+  // Update UI for this specific message
+  const messageEl = document.querySelector(
+    `[data-message-id="${data.messageId}"]`
+  );
+  if (messageEl) {
+    if (data.type === "like") {
+      messageEl.querySelector(".like-btn").textContent = `👍 ${
+        data.likes || 0
+      }`;
+    } else if (data.type === "dislike") {
+      messageEl.querySelector(".dislike-btn").textContent = `👎 ${
+        data.dislikes || 0
+      }`;
+    }
+  }
+  render();
+}
 
 async function sendMessage(text) {
   if (socket.readyState === WebSocket.OPEN) {
