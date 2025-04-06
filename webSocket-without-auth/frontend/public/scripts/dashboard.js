@@ -65,7 +65,6 @@ socket.onmessage = (evt) => {
 
       // Check if the current page has more than 5 messages
       if (state.messages.length > 5) {
-        console.log("Message count exceeds 5. Moving to a new page...");
         state.pagination.currentPage += 1;
         state.messages = [data]; // Start a new page with the new message
         state.pagination.totalPages = state.pagination.currentPage;
@@ -106,14 +105,16 @@ socket.onclose = () => {
   console.log("WEBSOCKET CLOSE...");
 };
 
+// Ensure the UI is updated with the correct likes and dislikes counts
 function updateMessageReactionsUI(data) {
+  console.log(data, "===> data in update");
   const message = state.messages.find((m) => m._id === data.messageId);
   if (message) {
-    data.type === "like"
-      ? (message.likes = data.likes || 0)
-      : data.type === "dislike"
-      ? message.dislikes
-      : data.dislikes || 0;
+    if (data.type === "like") {
+      message.likes = data.likes || 0;
+    } else if (data.type === "dislike") {
+      message.dislikes = data.dislikes || 0;
+    }
   }
 
   // Update UI for this specific message
@@ -121,17 +122,16 @@ function updateMessageReactionsUI(data) {
     `[data-message-id="${data.messageId}"]`
   );
   if (messageEl) {
-    if (data.type === "like") {
-      messageEl.querySelector(".like-btn").textContent = `👍 ${
-        data.likes || 0
-      }`;
-    } else if (data.type === "dislike") {
-      messageEl.querySelector(".dislike-btn").textContent = `👎 ${
-        data.dislikes || 0
-      }`;
+    const likeButton = messageEl.querySelector(".like-btn");
+    const dislikeButton = messageEl.querySelector(".dislike-btn");
+
+    if (likeButton) {
+      likeButton.textContent = `👍 ${message.likes || 0}`;
+    }
+    if (dislikeButton) {
+      dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
     }
   }
-  render();
 }
 
 async function sendMessage(text) {
@@ -247,7 +247,7 @@ async function fetchAllMessagesForAllUsers(page, limit = 5) {
 
     // Replace the current messages with the new ones
     state.messages = messages;
-
+    await fetchReactionsForMessages(state.messages);
     render();
     updatePaginationControls();
   } catch (e) {
