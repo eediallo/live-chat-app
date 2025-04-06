@@ -39,9 +39,22 @@ socket.onopen = async () => {
   isSocketOpen = true;
   console.log("SOCKET OPENED");
 
-  // Fetch and display all previous messages
-  await fetchAllMessagesForAllUsers();
-  render();
+  try {
+    // Fetch the total number of pages first
+    const url = `${baseUrl}/api/v1/messages/all?limit=5`;
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch total pages: ${resp.status}`);
+    }
+    const { numOfPages } = await resp.json();
+    paginationState.totalPages = numOfPages;
+
+    // Fetch the last page of messages
+    await fetchAllMessagesForAllUsers(paginationState.totalPages);
+    render();
+  } catch (e) {
+    console.error("Error fetching total pages or messages:", e);
+  }
 };
 
 socket.onmessage = (evt) => {
@@ -215,7 +228,7 @@ function render() {
   });
 }
 
-async function fetchAllMessagesForAllUsers(page = 1, limit = 5) {
+async function fetchAllMessagesForAllUsers(page, limit = 5) {
   try {
     const url = `${baseUrl}/api/v1/messages/all?page=${page}&limit=${limit}`;
     const resp = await fetch(url);
