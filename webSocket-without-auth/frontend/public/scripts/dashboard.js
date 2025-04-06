@@ -12,9 +12,13 @@ const user = prompt("Please enter your name");
 let socket = new WebSocket(`ws://localhost:3000?username=${user}`);
 const baseUrl = "http://localhost:3000";
 
-socket.onopen = () => {
+socket.onopen = async () => {
   state.username = user;
   console.log("SOCKET OPENED");
+
+  // Fetch and display all previous messages
+  await fetchAllMessagesForAllUsers();
+  render();
 };
 
 socket.onmessage = (evt) => {
@@ -63,6 +67,14 @@ socket.onmessage = (evt) => {
         }`;
       }
       render();
+      break;
+
+    case "join":
+      // Display join message on the UI
+      const joinMessageEl = document.createElement("div");
+      joinMessageEl.classList.add("join-message");
+      joinMessageEl.textContent = data.message;
+      messageContainer.append(joinMessageEl);
       break;
 
     default:
@@ -215,9 +227,9 @@ async function fetchReactionsForMessages(messages) {
   }
 }
 
-async function main() {
-  await fetchAllMessagesForAllUsers();
-  render();
-}
+// async function main() {
+//   await fetchAllMessagesForAllUsers();
+//   render();
+// }
 
-window.onload = main;
+// window.onload = main;
