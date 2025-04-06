@@ -9,10 +9,15 @@ const state = {
 };
 
 function createAndAppendElToContainer(tag, className, content, container) {
-  const element = document.createElement(tag);
+  const element = createElement(tag, content);
   element.classList.add(className);
-  element.textContent = content;
   container.append(element);
+}
+
+function createElement(tag, content) {
+  const element = document.createElement(tag, content);
+  element.textContent = content;
+  return element;
 }
 
 const user = prompt("Please enter your name");
@@ -151,26 +156,19 @@ function createMessageCard(message) {
     minute: "2-digit",
   });
 
-  const time = document.createElement("i");
-  time.textContent = ` ${timestamp}`;
-
-  const sender = document.createElement("b");
-  sender.textContent = message.sender.username;
-
-  const text = document.createElement("p");
-  text.textContent = message.text;
+  const time = createElement("i", ` ${timestamp}`);
+  const sender = createElement("b", message.sender.username);
+  const text = createElement("p", message.text);
 
   // Like Button
-  const likeButton = document.createElement("button");
-  likeButton.textContent = `👍 ${message.likes || 0}`;
+  const likeButton = createElement("button", `👍 ${message.likes || 0}`);
   likeButton.classList.add("like-btn");
   likeButton.addEventListener("click", () => {
     likeMessagePayload(message._id);
   });
 
   // Dislike Button
-  const dislikeButton = document.createElement("button");
-  dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
+  const dislikeButton = createElement("button", `👎 ${message.dislikes || 0}`);
   dislikeButton.classList.add("dislike-btn");
   dislikeButton.addEventListener("click", () => {
     dislikeMessagePayload(message._id);
