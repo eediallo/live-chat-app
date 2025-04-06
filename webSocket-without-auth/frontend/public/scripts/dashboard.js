@@ -80,7 +80,6 @@ socket.onclose = () => {
 };
 
 async function sendMessage(text) {
-  state.username = user;
   if (socket.readyState === WebSocket.OPEN) {
     const timestamp = new Date().toISOString();
     const payload = {
