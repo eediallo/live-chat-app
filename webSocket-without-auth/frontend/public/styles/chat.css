@@ -139,3 +139,9 @@ dialog button {
 dialog button:hover {
     background-color: #0056b3;
 }
+
+#errorMsg{
+    color: red;
+    font-weight: 24px;
+    text-align: center;
+}
