@@ -1,3 +1,4 @@
+
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
@@ -6,6 +7,7 @@ const prevPageBtn = document.querySelector("#prev-page-btn");
 const nextPageBtn = document.querySelector("#next-page-btn");
 const pageInfo = document.querySelector("#page-info");
 const usernameEl = document.querySelector("#username");
+const paginationControlsEl = document.querySelector("#pagination-controls");
 
 const state = {
   messages: [],
@@ -52,16 +54,25 @@ socket.onopen = async () => {
     // Fetch the total number of pages first
     const url = `${baseUrl}/api/v1/messages/all?limit=5`;
     const resp = await fetch(url);
+    const data = await resp.json();
+
     if (!resp.ok) {
-      throw new Error(`Failed to fetch total pages: ${resp.status}`);
+      console.error(`Failed to fetch total pages: ${resp.status}`);
+      errorMsgEl.textContent = data.msg || "An error occurred.";
+      paginationControlsEl.style.display = "none";
+      return;
     }
-    const { numOfPages } = await resp.json();
+
+    const { numOfPages } = data;
     state.pagination.totalPages = numOfPages;
+    errorMsgEl.style.display = "none";
 
     // Fetch the last page of messages
     await fetchAllMessagesForAllUsers(state.pagination.totalPages);
     render();
   } catch (e) {
+    errorMsgEl.textContent = e.message || "An unexpected error occurred.";
+    paginationControlsEl.style.display = "none";
     console.error("Error fetching total pages or messages:", e);
   }
 };
@@ -167,6 +178,8 @@ async function sendMessage(text) {
       createdAt: timestamp,
     };
     socket.send(JSON.stringify(payload));
+     // Hide the error message if it is visible
+     errorMsgEl.style.display = "none";
   } else {
     console.error("WebSocket is not open. Cannot send message.");
   }
@@ -263,16 +276,26 @@ async function fetchAllMessagesForAllUsers(page, limit = 5) {
       throw new Error(`Failed to fetch messages: ${resp.status}`);
     }
     const { messages, numOfPages } = await resp.json();
-    state.pagination.totalPages = numOfPages;
-    state.pagination.currentPage = page;
 
-    // Replace the current messages with the new ones
-    state.messages = messages;
-    await fetchReactionsForMessages(state.messages);
+    if (messages.length === 0 && numOfPages.length === 0) {
+      errorMsgEl.textContent = "No messages found. Please send a message.";
+      errorMsgEl.style.display = "block";
+      return;
+    } else {
+      state.pagination.totalPages = numOfPages;
+      state.pagination.currentPage = page;
+      // Replace the current messages with the new ones
+      state.messages = messages;
+      await fetchReactionsForMessages(state.messages);
+      errorMsgEl.style.display = "none";
+    }
+
     render();
     updatePaginationControls();
   } catch (e) {
     console.error(e);
+    errorMsgEl.textContent = "An error occurred while fetching messages.";
+    errorMsgEl.style.display = "block";
   }
 }
 
