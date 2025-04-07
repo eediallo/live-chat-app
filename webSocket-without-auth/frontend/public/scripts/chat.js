@@ -1,4 +1,3 @@
-
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
@@ -100,7 +99,7 @@ socket.onmessage = (evt) => {
     case "message":
       state.messages.push(data);
 
-      // create a new page if message count exceeds 5
+      // Create a new page if message count exceeds 5
       if (state.messages.length > 5) {
         state.pagination.currentPage += 1;
         state.messages = [data];
@@ -122,6 +121,10 @@ socket.onmessage = (evt) => {
       showJoinMessageDialog(data.message);
       break;
 
+    case "error":
+      alert(data.message); // Display the error message to the user
+      break;
+
     default:
       console.warn("Unknown message type:", data.type);
   }
@@ -139,7 +142,6 @@ socket.onclose = () => {
 
 // Ensure the UI is updated with the correct likes and dislikes counts
 function updateMessageReactionsUI(data) {
-  console.log(data, "===> data in update");
   const message = state.messages.find((m) => m._id === data.messageId);
   if (message) {
     if (data.type === "like") {
@@ -167,21 +169,27 @@ function updateMessageReactionsUI(data) {
 }
 
 async function sendMessage(text) {
-  if (socket.readyState === WebSocket.OPEN) {
-    const timestamp = new Date().toISOString();
-    const payload = {
-      type: "message",
-      text,
-      sender: {
-        username: state.username,
-      },
-      createdAt: timestamp,
-    };
-    socket.send(JSON.stringify(payload));
-     // Hide the error message if it is visible
-     errorMsgEl.style.display = "none";
-  } else {
-    console.error("WebSocket is not open. Cannot send message.");
+  try {
+    if (socket.readyState === WebSocket.OPEN) {
+      const timestamp = new Date().toISOString();
+      const payload = {
+        type: "message",
+        text,
+        sender: {
+          username: state.username,
+        },
+        createdAt: timestamp,
+      };
+      socket.send(JSON.stringify(payload));
+      // Hide the error message if it is visible
+      errorMsgEl.style.display = "none";
+    } else {
+      console.error("WebSocket is not open. Cannot send message.");
+    }
+  } catch (e) {
+    if (e.code === 11000) {
+      console.log("11000 error");
+    }
   }
 }
 
