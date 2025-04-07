@@ -28,8 +28,15 @@ export const saveMsgToDb = async (message) => {
 
     return newMessage;
   } catch (e) {
-    console.log(e);
-    return null;
+    if (e.code === 11000) {
+      throw new Error(
+        "Duplicate entry detected: You have already liked this message"
+      );
+    }
+    console.error(e);
+    throw new Error(
+      "An error occurred while saving the message to the database"
+    );
   }
 };
 
@@ -41,8 +48,7 @@ export const saveLikeToDb = async (likeData, userId) => {
     const existingDislike = await Dislike.findOne({ messageId, userId });
 
     if (existingLike) {
-      console.error("You have already liked this message.");
-      return;
+      throw new Error("You have already liked this message.");
     }
 
     if (existingDislike) {
@@ -57,29 +63,29 @@ export const saveLikeToDb = async (likeData, userId) => {
       "userId",
       "_id username"
     );
-    console.log(populatedLike, "populated like");
-
     return populatedLike;
   } catch (e) {
+    if (e.message === "You have already liked this message.") {
+      return { error: e.message };
+    }
     console.error("Error liking message", e);
-    return null;
+    return { error: "An error occurred while liking the message." };
   }
 };
 
 export const saveDislikeToDb = async (dislikeData, userId) => {
   const { messageId } = dislikeData;
   try {
-    //check if the user already reacted (either liked or disliked)
+    // Check if the user already reacted (either liked or disliked)
     const existingLike = await Like.findOne({ messageId, userId });
     const existingDislike = await Dislike.findOne({ messageId, userId });
 
     if (existingDislike) {
-      console.error("You have already disliked this message.");
-      return;
+      throw new Error("You have already disliked this message.");
     }
 
     if (existingLike) {
-      // If the user has already disliked the message, remove the dislike first
+      // If the user has already liked the message, remove the like first
       await Like.deleteOne({ messageId, userId });
     }
 
@@ -92,8 +98,11 @@ export const saveDislikeToDb = async (dislikeData, userId) => {
     );
     return populatedDislike;
   } catch (e) {
-    console.error("Error liking message", e);
-    return null;
+    if (e.message === "You have already disliked this message.") {
+      return { error: e.message };
+    }
+    console.error("Error disliking message", e);
+    return { error: "An error occurred while disliking the message." };
   }
 };
 
@@ -118,33 +127,48 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
     const { messageId } = data;
     const userInfo = userConnection.get(ws); // get user info from ws
     const userId = userInfo?.userId;
+    let result;
+
     switch (data.type) {
       case "like":
-        const likeResult = await saveLikeToDb(data, userId);
-        if (!likeResult) {
-          console.error("Failed to save dislike to database.");
-          return null;
+        result = await saveLikeToDb(data, userId);
+        if (result.error) {
+          // Send the error message only to the concerned user
+          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          return;
         }
-        const { _doc: like } = likeResult;
         const likesCounts = await getMessageReactionCounts(messageId);
-        return { ...like, type: "like", ...likesCounts };
+        ws.send(
+          JSON.stringify({ ...result._doc, type: "like", ...likesCounts })
+        );
+        break;
+
       case "dislike":
-        const dislikeResult = await saveDislikeToDb(data, userId);
-        if (!dislikeResult) {
-          console.error("Failed to save dislike to database.");
-          return null;
+        result = await saveDislikeToDb(data, userId);
+        if (result.error) {
+          // Send the error message only to the concerned user
+          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          return;
         }
-        const { _doc: dislike } = dislikeResult;
-        console.log("dislike info", dislike);
         const dislikesCounts = await getMessageReactionCounts(messageId);
-        return { ...dislike, type: "dislike", ...dislikesCounts };
+        ws.send(
+          JSON.stringify({ ...result._doc, type: "dislike", ...dislikesCounts })
+        );
+        break;
 
       default:
         const { _doc: message } = await saveMsgToDb(data);
-        return { ...message, type: "message" };
+        ws.send(JSON.stringify({ ...message, type: "message" }));
+        break;
     }
   } catch (error) {
     console.error("Error parsing message", error);
-    return null;
+    // Send a generic error message only to the concerned user
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "An unexpected error occurred.",
+      })
+    );
   }
 };
