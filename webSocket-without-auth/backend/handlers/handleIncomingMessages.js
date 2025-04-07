@@ -36,7 +36,7 @@ export const saveMsgToDb = async (message) => {
 export const saveLikeToDb = async (likeData, userId) => {
   const { messageId } = likeData;
   try {
-    //check if the user already reacted (either liked or disliked)
+    // Check if the user already reacted (either liked or disliked)
     const existingLike = await Like.findOne({ messageId, userId });
     const existingDislike = await Dislike.findOne({ messageId, userId });
 
@@ -51,7 +51,15 @@ export const saveLikeToDb = async (likeData, userId) => {
     }
 
     const like = await Like.create({ messageId, userId });
-    return like;
+
+    // Populate the user details (id and username)
+    const populatedLike = await Like.findById(like._id).populate(
+      "userId",
+      "_id username"
+    );
+    console.log(populatedLike, "populated like");
+
+    return populatedLike;
   } catch (e) {
     console.error("Error liking message", e);
     return null;
@@ -76,7 +84,13 @@ export const saveDislikeToDb = async (dislikeData, userId) => {
     }
 
     const dislike = await Dislike.create({ messageId, userId: userId });
-    return dislike;
+
+    // Populate the user details (id and username)
+    const populatedDislike = await Like.findById(dislike._id).populate(
+      "userId",
+      "_id username"
+    );
+    return populatedDislike;
   } catch (e) {
     console.error("Error liking message", e);
     return null;
@@ -100,12 +114,14 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
   try {
     const data = JSON.parse(dataString);
+    console.log("received from the client: ", data);
     const { messageId } = data;
     const userInfo = userConnection.get(ws); // get user info from ws
     const userId = userInfo?.userId;
     switch (data.type) {
       case "like":
         const { _doc: like } = await saveLikeToDb(data, userId);
+        console.log(like, "====like info");
         const likesCounts = await getMessageReactionCounts(messageId);
         return { ...like, type: "like", ...likesCounts };
       case "dislike":
