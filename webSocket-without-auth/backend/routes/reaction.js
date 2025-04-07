@@ -9,6 +9,6 @@ const reactionRouter = express.Router();
 
 reactionRouter.get("/", getAllReactions);
 reactionRouter.get("/:messageId", getMessageReactionCounts);
-reactionRouter.get("/:messageId", getMessageLikes);
+reactionRouter.get("/user/:userId", getMessageLikes);
 
 export { reactionRouter };
