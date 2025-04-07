@@ -79,7 +79,6 @@ function showJoinMessageDialog(message) {
   dialog.showModal();
 }
 
-
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
 
@@ -170,7 +169,6 @@ async function sendMessage(text) {
   }
 }
 
-
 function likeMessagePayload(messageId) {
   const payload = {
     type: "like",
@@ -178,7 +176,6 @@ function likeMessagePayload(messageId) {
   };
   socket.send(JSON.stringify(payload));
 }
-
 
 function dislikeMessagePayload(messageId) {
   const payload = {
@@ -282,9 +279,9 @@ async function fetchReactionsForMessages(messages) {
       `${baseUrl}/api/v1/reactions/${message._id}`
     );
     if (reactionsResp.ok) {
-      const { likes, dislikes } = await reactionsResp.json();
-      message.likes = likes;
-      message.dislikes = dislikes;
+      const { likesCount, dislikesCount } = await reactionsResp.json();
+      message.likes = likesCount;
+      message.dislikes = dislikesCount;
     } else {
       message.likes = 0;
       message.dislikes = 0;
