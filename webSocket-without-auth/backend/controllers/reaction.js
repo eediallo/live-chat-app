@@ -3,26 +3,38 @@ import { Like } from "../models/like.js";
 import { Dislike } from "../models/dislike.js";
 
 export const getMessageReactionCounts = async (req, res) => {
+  const { messageId } = req.params;
   try {
-    const likes = await Like.countDocuments({
-      messageId: req.params.messageId,
-    });
+    const [likes, dislikes, likesCount, dislikesCount] = await Promise.all([
+      Like.find({ messageId }),
+      Dislike.find({ messageId }),
 
-    const dislikes = await Dislike.countDocuments({
-      messageId: req.params.messageId,
-    });
+      Like.countDocuments({
+        messageId,
+      }),
+      Dislike.countDocuments({
+        messageId,
+      }),
+    ]);
 
-    res.status(StatusCodes.OK).json({ likes, dislikes });
+    const likedBy = likes.map((l) => l.userId);
+    const dislikedBy = dislikes.map((d) => d.userId);
+
+    res
+      .status(StatusCodes.OK)
+      .json({ likesCount, dislikesCount, likedBy, dislikedBy });
   } catch (e) {
     console.error(e);
   }
 };
 
 export const getMessageLikes = async (req, res) => {
+  const { userId } = req.params;
+  console.log(userId, "userID");
   try {
-    const likes = await Like.find({});
+    const likes = await Like.find({ userId: userId });
     if (likes) {
-      res
+      return res
         .status(StatusCodes.NOT_FOUND)
         .json({ msg: "No likes found for this message" });
     }
