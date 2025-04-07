@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 
 export const getAllMessagesForAllUsers = async (req, res) => {
-  const { page, limit = 5 } = req.query;
+  const { page = 1, limit = 5 } = req.query;
 
   try {
     const totalMessages = await Message.countDocuments();
@@ -16,6 +16,12 @@ export const getAllMessagesForAllUsers = async (req, res) => {
       .sort("createdAt")
       .skip(skip)
       .limit(Number(limit));
+
+    if (!messages || !numOfPages || !totalMessages) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "No message has been sent yet. Please send a message" });
+    }
 
     res.status(StatusCodes.OK).json({ messages, totalMessages, numOfPages });
   } catch (error) {
