@@ -83,10 +83,10 @@ export const saveDislikeToDb = async (dislikeData, userId) => {
       await Like.deleteOne({ messageId, userId });
     }
 
-    const dislike = await Dislike.create({ messageId, userId: userId });
+    const dislike = await Dislike.create({ messageId, userId });
 
     // Populate the user details (id and username)
-    const populatedDislike = await Like.findById(dislike._id).populate(
+    const populatedDislike = await Dislike.findById(dislike._id).populate(
       "userId",
       "_id username"
     );
@@ -121,11 +121,16 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
     switch (data.type) {
       case "like":
         const { _doc: like } = await saveLikeToDb(data, userId);
-        console.log(like, "====like info");
         const likesCounts = await getMessageReactionCounts(messageId);
         return { ...like, type: "like", ...likesCounts };
       case "dislike":
-        const { _doc: dislike } = await saveDislikeToDb(data, userId);
+        const dislikeResult = await saveDislikeToDb(data, userId);
+        if (!dislikeResult) {
+          console.error("Failed to save dislike to database.");
+          return null;
+        }
+        const { _doc: dislike } = dislikeResult;
+        console.log("dislike info", dislike);
         const dislikesCounts = await getMessageReactionCounts(messageId);
         return { ...dislike, type: "dislike", ...dislikesCounts };
 
