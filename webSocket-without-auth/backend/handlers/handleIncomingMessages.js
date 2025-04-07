@@ -120,7 +120,12 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
     const userId = userInfo?.userId;
     switch (data.type) {
       case "like":
-        const { _doc: like } = await saveLikeToDb(data, userId);
+        const likeResult = await saveLikeToDb(data, userId);
+        if (!likeResult) {
+          console.error("Failed to save dislike to database.");
+          return null;
+        }
+        const { _doc: like } = likeResult;
         const likesCounts = await getMessageReactionCounts(messageId);
         return { ...like, type: "like", ...likesCounts };
       case "dislike":
