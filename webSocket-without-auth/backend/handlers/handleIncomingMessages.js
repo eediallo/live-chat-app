@@ -105,7 +105,6 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
   try {
     const data = JSON.parse(dataString);
-    console.log("received from the client: ", data);
     const { messageId } = data;
     const userInfo = userConnection.get(ws); // get user info from ws
     const userId = userInfo?.userId;
