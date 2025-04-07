@@ -138,11 +138,7 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
           return;
         }
         const likesCounts = await getMessageReactionCounts(messageId);
-        ws.send(
-          JSON.stringify({ ...result._doc, type: "like", ...likesCounts })
-        );
-        break;
-
+        return { ...result._doc, type: "like", ...likesCounts };
       case "dislike":
         result = await saveDislikeToDb(data, userId);
         if (result.error) {
@@ -151,15 +147,11 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
           return;
         }
         const dislikesCounts = await getMessageReactionCounts(messageId);
-        ws.send(
-          JSON.stringify({ ...result._doc, type: "dislike", ...dislikesCounts })
-        );
-        break;
+        return { ...result._doc, type: "dislike", ...dislikesCounts };
 
       default:
         const { _doc: message } = await saveMsgToDb(data);
-        ws.send(JSON.stringify({ ...message, type: "message" }));
-        break;
+        return { ...message, type: "message" };
     }
   } catch (error) {
     console.error("Error parsing message", error);
