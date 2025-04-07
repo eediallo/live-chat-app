@@ -180,23 +180,24 @@ async function likeMessagePayload(messageId) {
   }
   await fetchAllReactions();
   // Filter users who reacted to this message
+  message.likedBy = message.likedBy || []; // Ensure likedBy is initialized
   const users = state.likes
     .filter((l) => l.messageId === messageId)
     .map((l) => l.userId);
 
-  for (const userId of users) {
-    for (const likeBy of message.likedBy) {
-      if (userId === likeBy) {
-        alert("You cannot like a message twice.");
-        return;
-      }
+  for (const userId of message.likedBy) {
+    if (!users.includes(userId)) {
+      alert("You have already liked this message");
+      return;
     }
   }
+
   const payload = {
     type: "like",
     messageId: messageId,
   };
   socket.send(JSON.stringify(payload));
+  message.likedBy.push(state.username); // Update likedBy after sending the payload
 }
 
 function dislikeMessagePayload(messageId) {
