@@ -14,6 +14,8 @@ const state = {
     currentPage: 1,
     totalPages: 1,
   },
+  likes: [],
+  dislikes: [],
 };
 
 let isSocketOpen = false;
@@ -81,6 +83,7 @@ function showJoinMessageDialog(message) {
 
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
+  console.log(data, "data===>");
 
   switch (data.type) {
     case "message":
@@ -169,7 +172,26 @@ async function sendMessage(text) {
   }
 }
 
-function likeMessagePayload(messageId) {
+async function likeMessagePayload(messageId) {
+  const message = state.messages.find((m) => m._id === messageId);
+  if (!message) {
+    console.error("message not found");
+    return;
+  }
+  await fetchAllReactions();
+  // Filter users who reacted to this message
+  const users = state.likes
+    .filter((l) => l.messageId === messageId)
+    .map((l) => l.userId);
+
+  for (const userId of users) {
+    for (const likeBy of message.likedBy) {
+      if (userId === likeBy) {
+        alert("You cannot like a message twice.");
+        return;
+      }
+    }
+  }
   const payload = {
     type: "like",
     messageId: messageId,
@@ -279,13 +301,30 @@ async function fetchReactionsForMessages(messages) {
       `${baseUrl}/api/v1/reactions/${message._id}`
     );
     if (reactionsResp.ok) {
-      const { likesCount, dislikesCount } = await reactionsResp.json();
+      const { likesCount, dislikesCount, likedBy, dislikedBy } =
+        await reactionsResp.json();
       message.likes = likesCount;
       message.dislikes = dislikesCount;
+      message.likedBy = likedBy || [];
+      message.dislikedBy = dislikedBy || [];
     } else {
       message.likes = 0;
       message.dislikes = 0;
     }
+  }
+}
+
+async function fetchAllReactions() {
+  try {
+    const resp = await fetch(`${baseUrl}/api/v1/reactions`);
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch reactions: ${resp.status}`);
+    }
+    const { likes, dislikes } = await resp.json();
+    state.likes = likes;
+    state.dislikes = dislikes;
+  } catch (e) {
+    console.log(e.msg);
   }
 }
 
