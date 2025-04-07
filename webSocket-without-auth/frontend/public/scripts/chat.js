@@ -172,18 +172,6 @@ async function sendMessage(text) {
 
 
 function likeMessagePayload(messageId) {
-  const message = state.messages.find((m) => m._id === messageId);
-  if (message) {
-    if (message.likes > 0) {
-      alert("You have already liked this message.");
-      return;
-    }
-    if (message.dislikes > 0) {
-      alert("You cannot like and dislike the same message.");
-      return;
-    }
-  }
-
   const payload = {
     type: "like",
     messageId: messageId,
@@ -193,18 +181,6 @@ function likeMessagePayload(messageId) {
 
 
 function dislikeMessagePayload(messageId) {
-  const message = state.messages.find((m) => m._id === messageId);
-  if (message) {
-    if (message.dislikes > 0) {
-      alert("You have already disliked this message.");
-      return;
-    }
-    if (message.likes > 0) {
-      alert("You cannot like and dislike the same message.");
-      return;
-    }
-  }
-
   const payload = {
     type: "dislike",
     messageId: messageId,
