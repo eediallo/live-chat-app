@@ -66,11 +66,9 @@ socket.onopen = async () => {
 
 //display  join message in a dialog box
 function showJoinMessageDialog(message) {
-  const dialog = document.createElement("dialog");
-  dialog.textContent = message;
+  const dialog = createDOMElement("dialog", message);
 
-  const closeButton = document.createElement("button");
-  closeButton.textContent = "Close";
+  const closeButton = createDOMElement("button", "Close");
   closeButton.addEventListener("click", () => {
     dialog.close();
     dialog.remove();
@@ -81,7 +79,7 @@ function showJoinMessageDialog(message) {
   dialog.showModal();
 }
 
-// Update the WebSocket message handler to use the dialog for join messages
+
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
 
@@ -89,6 +87,7 @@ socket.onmessage = (evt) => {
     case "message":
       state.messages.push(data);
 
+      // create a new page if message count exceeds 5
       if (state.messages.length > 5) {
         state.pagination.currentPage += 1;
         state.messages = [data];
@@ -171,7 +170,7 @@ async function sendMessage(text) {
   }
 }
 
-// Modify the likeMessagePayload function to prevent both like and dislike
+
 function likeMessagePayload(messageId) {
   const message = state.messages.find((m) => m._id === messageId);
   if (message) {
@@ -192,7 +191,7 @@ function likeMessagePayload(messageId) {
   socket.send(JSON.stringify(payload));
 }
 
-// Modify the dislikeMessagePayload function to prevent both like and dislike
+
 function dislikeMessagePayload(messageId) {
   const message = state.messages.find((m) => m._id === messageId);
   if (message) {
