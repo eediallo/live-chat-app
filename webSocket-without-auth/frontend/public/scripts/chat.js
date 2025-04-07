@@ -173,34 +173,14 @@ async function sendMessage(text) {
 }
 
 async function likeMessagePayload(messageId) {
-  const message = state.messages.find((m) => m._id === messageId);
-  if (!message) {
-    console.error("message not found");
-    return;
-  }
-  await fetchAllReactions();
-  // Filter users who reacted to this message
-  message.likedBy = message.likedBy || []; // Ensure likedBy is initialized
-  const users = state.likes
-    .filter((l) => l.messageId === messageId)
-    .map((l) => l.userId);
-
-  for (const userId of message.likedBy) {
-    if (!users.includes(userId)) {
-      alert("You have already liked this message");
-      return;
-    }
-  }
-
   const payload = {
     type: "like",
     messageId: messageId,
   };
   socket.send(JSON.stringify(payload));
-  message.likedBy.push(state.username); // Update likedBy after sending the payload
 }
 
-function dislikeMessagePayload(messageId) {
+async function dislikeMessagePayload(messageId) {
   const payload = {
     type: "dislike",
     messageId: messageId,
@@ -311,6 +291,8 @@ async function fetchReactionsForMessages(messages) {
     } else {
       message.likes = 0;
       message.dislikes = 0;
+      message.likedBy = [];
+      message.dislikedBy = [];
     }
   }
 }
