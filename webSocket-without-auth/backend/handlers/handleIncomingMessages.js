@@ -40,71 +40,53 @@ export const saveMsgToDb = async (message) => {
   }
 };
 
-export const saveLikeToDb = async (likeData, userId) => {
-  const { messageId } = likeData;
+export const saveReactionToDb = async (
+  reactionData,
+  userId,
+  ReactionModel,
+  OppositeReactionModel,
+  reactionType
+) => {
+  const { messageId } = reactionData;
   try {
     // Check if the user already reacted (either liked or disliked)
-    const existingLike = await Like.findOne({ messageId, userId });
-    const existingDislike = await Dislike.findOne({ messageId, userId });
+    const existingReaction = await ReactionModel.findOne({ messageId, userId });
+    const existingOppositeReaction = await OppositeReactionModel.findOne({
+      messageId,
+      userId,
+    });
 
-    if (existingLike) {
-      throw new Error("You have already liked this message.");
+    if (existingReaction) {
+      throw new Error(`You have already ${reactionType}d this message.`);
     }
 
-    if (existingDislike) {
-      // If the user has already disliked the message, remove the dislike first
-      await Dislike.deleteOne({ messageId, userId });
+    if (existingOppositeReaction) {
+      // If the user has already reacted oppositely, remove the opposite reaction first
+      await OppositeReactionModel.deleteOne({ messageId, userId });
     }
 
-    const like = await Like.create({ messageId, userId });
+    const reaction = await ReactionModel.create({ messageId, userId });
 
     // Populate the user details (id and username)
-    const populatedLike = await Like.findById(like._id).populate(
-      "userId",
-      "_id username"
-    );
-    return populatedLike;
+    const populatedReaction = await ReactionModel.findById(
+      reaction._id
+    ).populate("userId", "_id username");
+    return populatedReaction;
   } catch (e) {
-    if (e.message === "You have already liked this message.") {
+    if (e.message === `You have already ${reactionType}d this message.`) {
       return { error: e.message };
     }
-    console.error("Error liking message", e);
-    return { error: "An error occurred while liking the message." };
+    console.error(`Error ${reactionType}ing message`, e);
+    return { error: `An error occurred while ${reactionType}ing the message.` };
   }
 };
 
-export const saveDislikeToDb = async (dislikeData, userId) => {
-  const { messageId } = dislikeData;
-  try {
-    // Check if the user already reacted (either liked or disliked)
-    const existingLike = await Like.findOne({ messageId, userId });
-    const existingDislike = await Dislike.findOne({ messageId, userId });
+// Wrapper functions for like and dislike
+export const saveLikeToDb = (likeData, userId) =>
+  saveReactionToDb(likeData, userId, Like, Dislike, "like");
 
-    if (existingDislike) {
-      throw new Error("You have already disliked this message.");
-    }
-
-    if (existingLike) {
-      // If the user has already liked the message, remove the like first
-      await Like.deleteOne({ messageId, userId });
-    }
-
-    const dislike = await Dislike.create({ messageId, userId });
-
-    // Populate the user details (id and username)
-    const populatedDislike = await Dislike.findById(dislike._id).populate(
-      "userId",
-      "_id username"
-    );
-    return populatedDislike;
-  } catch (e) {
-    if (e.message === "You have already disliked this message.") {
-      return { error: e.message };
-    }
-    console.error("Error disliking message", e);
-    return { error: "An error occurred while disliking the message." };
-  }
-};
+export const saveDislikeToDb = (dislikeData, userId) =>
+  saveReactionToDb(dislikeData, userId, Dislike, Like, "dislike");
 
 export const getMessageReactionCounts = async (messageId) => {
   try {
