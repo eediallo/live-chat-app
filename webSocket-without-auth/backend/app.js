@@ -22,7 +22,7 @@ wss.on("connection", async (ws, req) => {
   const origin = req.headers.origin;
   if (
     origin !==
-    "https://eediallo-live-chat-server-frontend.hosting.codeyourfuture.io/"
+    "https://eediallo-live-chat-server-frontend.hosting.codeyourfuture.io/chat.html"
   ) {
     ws.close();
   }
