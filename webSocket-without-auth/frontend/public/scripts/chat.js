@@ -40,8 +40,10 @@ if (!user) {
   throw new Error("Username is required");
 }
 
-let socket = new WebSocket(`ws://localhost:3000?username=${user}`);
-const baseUrl = "http://localhost:3000";
+let socket = new WebSocket(
+  `wss://ediallo-live-chat-server.hosting.codeyourfuture.io/?username=${user}`
+);
+const baseUrl = "https://ediallo-live-chat-server.hosting.codeyourfuture.io";
 
 socket.onopen = async () => {
   state.username = user;
