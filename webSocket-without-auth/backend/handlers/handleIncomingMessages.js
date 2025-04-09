@@ -119,7 +119,7 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
           return;
         }
         const likesCounts = await getMessageReactionCounts(messageId);
-      return { ...result._doc, type: "like", ...likesCounts };
+        return { ...result._doc, type: "like", ...likesCounts };
       case "dislike":
         result = await saveDislikeToDb(data, userId);
         if (result.error) {
