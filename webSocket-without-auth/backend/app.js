@@ -73,12 +73,17 @@ wss.on("error", (error) => {
 
 const port = process.env.PORT || 3000;
 
-const publicDir = new URL("../frontend/public", import.meta.url).pathname;
+// const publicDir = new URL("../frontend/public", import.meta.url).pathname;
 
 //middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(publicDir)); // serve static files
+
+app.get("/", (req, resp) => {
+  resp.send(` <h1>Live Chat App</h1>
+    <a href="./api/v1/messages/all">Get All messages</a><br>
+    <a href="./api/v1/reactions">Get All reactions</a><br>`);
+});
 
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/reactions", reactionRouter);
