@@ -19,6 +19,13 @@ const userConnection = new Map();
 
 // wss connection event
 wss.on("connection", async (ws, req) => {
+  const origin = req.headers.origin;
+  if (
+    origin !==
+    "https://eediallo-live-chat-server-frontend.hosting.codeyourfuture.io/"
+  ) {
+    ws.close();
+  }
   console.log("New client connected");
   const username = req.url.split("=")[1];
 
