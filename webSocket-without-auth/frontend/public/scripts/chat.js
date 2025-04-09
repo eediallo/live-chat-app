@@ -41,7 +41,7 @@ if (!user) {
 }
 
 let socket = new WebSocket(
-  `wss://ediallo-live-chat-server.hosting.codeyourfuture.io/?username=${user}`
+  `https://ediallo-live-chat-server.hosting.codeyourfuture.io/?username=${user}`
 );
 const baseUrl = "https://ediallo-live-chat-server.hosting.codeyourfuture.io";
 
