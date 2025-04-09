@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { connectDB } from "./db/db.js";
 import { messageRouter } from "./routes/messages.js";
-import { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import http from "http";
 dotenv.config();
 import { handleIncomingMessages } from "./handlers/handleIncomingMessages.js";
