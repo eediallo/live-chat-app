@@ -11,8 +11,6 @@ import { reactionRouter } from "./routes/reaction.js";
 import { User } from "./models/user.js";
 import { notFound } from "./middleware/notFound.js";
 
-const publicDir = new URL("../frontend/public", import.meta.url).pathname;
-
 const app = express();
 const server = http.createServer(app);
 
@@ -76,18 +74,15 @@ wss.on("error", (error) => {
 
 const port = process.env.PORT || 3000;
 
-// const publicDir = new URL("../frontend/public", import.meta.url).pathname;
-
 //middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(publicDir));
 
-// app.get("/", (req, resp) => {
-//   resp.send(` <h1>Live Chat App</h1>
-//     <a href="./api/v1/messages/all">Get All messages</a><br>
-//     <a href="./api/v1/reactions">Get All reactions</a><br>`);
-// });
+app.get("/", (req, resp) => {
+  resp.send(` <h1>Live Chat App</h1>
+    <a href="./api/v1/messages/all">Get All messages</a><br>
+    <a href="./api/v1/reactions">Get All reactions</a><br>`);
+});
 
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/reactions", reactionRouter);
