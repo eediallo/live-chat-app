@@ -21,8 +21,6 @@ const userConnection = new Map();
 wss.on("connection", async (ws, req) => {
   console.log("New client connected");
   const username = req.url.split("=")[1];
-  console.log(username, "username");
-
   try {
     let user = await User.findOne({ username });
     if (!user) {
