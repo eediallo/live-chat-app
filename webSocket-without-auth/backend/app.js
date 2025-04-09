@@ -11,6 +11,9 @@ import { reactionRouter } from "./routes/reaction.js";
 import { User } from "./models/user.js";
 import { notFound } from "./middleware/notFound.js";
 
+// const publicDir = new URL("../frontend/public", import.meta.url).pathname;
+// console.log(publicDir);
+
 const app = express();
 const server = http.createServer(app);
 
@@ -21,6 +24,7 @@ const userConnection = new Map();
 wss.on("connection", async (ws, req) => {
   console.log("New client connected");
   const username = req.url.split("=")[1];
+  console.log(username, "username");
 
   try {
     let user = await User.findOne({ username });
@@ -78,6 +82,7 @@ const port = process.env.PORT || 3000;
 //middleware
 app.use(cors());
 app.use(express.json());
+// app.use(express.static(publicDir));
 
 app.get("/", (req, resp) => {
   resp.send(` <h1>Live Chat App</h1>
