@@ -12,7 +12,6 @@ import { User } from "./models/user.js";
 import { notFound } from "./middleware/notFound.js";
 
 const publicDir = new URL("../frontend/public", import.meta.url).pathname;
-console.log(publicDir);
 
 const app = express();
 const server = http.createServer(app);
