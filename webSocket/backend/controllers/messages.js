@@ -1,29 +1,29 @@
 import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 import { asyncWrapper } from "../middleware/async.js";
-import { NotFound } from "../errors/notFoundError.js";
-import { BadRequest } from "../errors/badRequestError.js";
 
 export const getAllMessagesForAllUsers = asyncWrapper(async (req, res) => {
-  const { since } = req.query;
-  let query = {};
+  const { page = 1, limit = 5 } = req.query;
 
-  // Validate 'since' parameter
-  if (since) {
-    const sinceDate = new Date(since);
-    if (isNaN(sinceDate)) {
-      throw new BadRequest("Invalid 'since' date format");
-    }
-    query.createdAt = { $gte: sinceDate };
+  const totalMessages = await Message.countDocuments();
+  const numOfPages = Math.ceil(totalMessages / Number(limit));
+
+  // If no page is provided, default to the last page
+  const currentPage = page ? Number(page) : numOfPages;
+  const skip = (currentPage - 1) * Number(limit);
+
+  const messages = await Message.find()
+    .sort("createdAt")
+    .skip(skip)
+    .limit(Number(limit));
+
+  if (!messages || !numOfPages || !totalMessages) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ msg: "No message has been sent yet. Please send a message" });
   }
 
-  const messages = await Message.find(query).sort("createdAt");
-
-  if (messages.length === 0) {
-    throw new NotFound("No message found");
-  }
-
-  res.status(StatusCodes.OK).json({ messages });
+  res.status(StatusCodes.OK).json({ messages, totalMessages, numOfPages });
 });
 
 export const createMessage = asyncWrapper(async (req, res) => {
