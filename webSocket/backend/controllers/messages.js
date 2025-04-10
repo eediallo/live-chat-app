@@ -4,8 +4,6 @@ import { asyncWrapper } from "../middleware/async.js";
 import { NotFound } from "../errors/notFoundError.js";
 import { BadRequest } from "../errors/badRequestError.js";
 
-const callbacksForNewMessages = [];
-
 export const getAllMessagesForAllUsers = asyncWrapper(async (req, res) => {
   const { since } = req.query;
   let query = {};
@@ -32,11 +30,6 @@ export const createMessage = asyncWrapper(async (req, res) => {
   const { userID, name } = req.user;
   req.body.sender = { id: userID, name };
   const message = await Message.create(req.body);
-
-  while (callbacksForNewMessages.length > 0) {
-    const callback = callbacksForNewMessages.pop();
-    callback([message]);
-  }
 
   res
     .status(StatusCodes.CREATED)
