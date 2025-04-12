@@ -9,6 +9,7 @@ import http from "http";
 dotenv.config();
 import { notFound } from "./middleware/notFound.js";
 import { errorHandlerMiddleware } from "./middleware/errorHandler.js";
+import { reactionRouter } from "./routes/reaction.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -48,6 +49,7 @@ app.use(express.static(publicDir)); // serve static files
 
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/reactions", reactionRouter);
 
 app.use(notFound);
 app.use(errorHandlerMiddleware);
