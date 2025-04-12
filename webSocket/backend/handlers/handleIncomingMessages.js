@@ -4,10 +4,8 @@ import { User } from "../models/user.js";
 import { Message } from "../models/message.js";
 
 export const saveMsgToDb = async (data) => {
-  console.log(data, "saving message ======>");
   const { sender, text, createdAt } = data;
   const username = sender.name;
-  console.log("USERNAME =====>", username);
 
   if (!username || !text) {
     console.error("Username and text message must be provided");
@@ -15,7 +13,6 @@ export const saveMsgToDb = async (data) => {
   }
   try {
     let existingUser = await User.findOne({ name: username });
-    console.log(existingUser, "existing user===>");
     if (!existingUser) {
       existingUser = await User.create({ username: username });
     }
@@ -108,7 +105,6 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
   try {
     const data = JSON.parse(dataString);
-    // console.log(data, "====data from the client====");
     const { messageId } = data;
     const userInfo = userConnection.get(ws); // get user info from ws
     const userId = userInfo?.userId;
