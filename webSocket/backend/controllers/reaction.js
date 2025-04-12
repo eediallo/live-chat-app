@@ -1,4 +1,3 @@
-
 import { Like } from "../models/like.js";
 import { Dislike } from "../models/dislike.js";
 import { StatusCodes } from "http-status-codes";
@@ -26,5 +25,24 @@ export const getMessageReactionCounts = async (req, res) => {
       .json({ likesCount, dislikesCount, likedBy, dislikedBy });
   } catch (e) {
     console.error(e);
+  }
+};
+
+export const getAllReactions = async (req, res) => {
+  try {
+    const [likes, dislikes] = await Promise.all([
+      Like.find({}),
+      Dislike.find({}),
+    ]);
+    if (likes.length === 0 && dislikes.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "No likes / dislikes found" });
+    }
+    res.status(StatusCodes.OK).json({ likes, dislikes });
+  } catch (e) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Something went wrong. Please try again later" });
   }
 };
