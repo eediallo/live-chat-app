@@ -4,6 +4,11 @@ import { StatusCodes } from "http-status-codes";
 
 export const getMessageReactionCounts = async (req, res) => {
   const { messageId } = req.params;
+  if (!messageId) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ msg: `Message with id ${messageId} not found` });
+  }
   try {
     const [likes, dislikes, likesCount, dislikesCount] = await Promise.all([
       Like.find({ messageId }),
