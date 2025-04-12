@@ -63,7 +63,6 @@ socket.onopen = async () => {
     } catch (e) {
       throw new Error("Failed to parse JSON response: " + e.message);
     }
-    console.log("data in ONOPEN===>", data);
 
     if (!resp.ok) {
       console.error(`Failed to fetch total pages: ${resp.status}`);
