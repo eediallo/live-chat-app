@@ -52,7 +52,7 @@ function createDOMElement(tag, content) {
 //   throw new Error("Username is required");
 // }
 
-let socket = new WebSocket(`ws:localhost:3000`);
+let socket = new WebSocket(`ws:localhost:3000/${token}`);
 const baseUrl = "http://localhost:3000";
 
 socket.onopen = async () => {
