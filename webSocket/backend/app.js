@@ -10,32 +10,68 @@ dotenv.config();
 import { notFound } from "./middleware/notFound.js";
 import { errorHandlerMiddleware } from "./middleware/errorHandler.js";
 import { reactionRouter } from "./routes/reaction.js";
-
+import { handleIncomingMessages
+  
+ } from "./handlers/handleIncomingMessages.js";
 const app = express();
 const server = http.createServer(app);
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server, clientTracking: true });
+const userConnection = new Map();
+
+function decodeToken(token) {
+  const payloadBase64 = token.split(".")[1];
+  const decodedPayload = atob(payloadBase64);
+  return JSON.parse(decodedPayload);
+}
 
 // wss connection event
-wss.on("connection", (ws) => {
+wss.on("connection", async (ws, req) => {
   console.log("New client connected");
+  const token = req.url.split("/")[1];
+  const userInfo = decodeToken(token);
+  const { id, name } = userInfo;
+  try {
+    userConnection.set(ws, { userId: id, username: name });
 
-  // handle messages from clients
-  ws.on("message", (message) => {
-    const msgString = message.toString();
-
-    // Broadcast the message to all connected client
+    // Notify all previously connected clients about the new connection with the user's name
+    const joinMessage = JSON.stringify({
+      type: "join",
+      message: `${name} has joined the chat!`,
+    });
     wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(msgString);
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(joinMessage);
       }
     });
+  } catch (e) {
+    console.error("could not find user", e);
+  }
+  // handle messages from clients
+  ws.on("message", async (message) => {
+    const newMessage = await handleIncomingMessages(
+      message,
+      ws,
+      userConnection
+    );
+    if (newMessage) {
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(newMessage));
+        }
+      });
+    }
   });
 
   // Handle client disconnection
   ws.on("close", () => {
     console.log("Client disconnected");
+    userConnection.delete(ws);
   });
+});
+
+wss.on("error", (error) => {
+  console.error("WebSocket error:", error);
 });
 
 const port = process.env.PORT || 3000;
