@@ -339,21 +339,6 @@ async function fetchMessageReactions(messages) {
   }
 }
 
-async function fetchAllReactions() {
-  try {
-    const resp = await fetch(`${baseUrl}/api/v1/reactions`);
-    console.log("RESPONSE IN FETCH REACTIONS", resp);
-    if (!resp.ok) {
-      throw new Error(`Failed to fetch reactions: ${resp.status}`);
-    }
-    const { likes, dislikes } = await resp.json();
-    state.likes = likes;
-    state.dislikes = dislikes;
-  } catch (e) {
-    console.log(e.msg);
-  }
-}
-
 function updatePaginationControls() {
   pageInfo.textContent = `Page ${state.pagination.currentPage} of ${state.pagination.totalPages}`;
   prevPageBtn.disabled = state.pagination.currentPage === 1;
