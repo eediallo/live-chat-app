@@ -7,6 +7,6 @@ import express from "express";
 const reactionRouter = express.Router();
 
 reactionRouter.get("/", getAllReactions);
-reactionRouter.get("/:id", getMessageReactionCounts);
+reactionRouter.get("/:messageId", getMessageReactionCounts);
 
 export { reactionRouter };
