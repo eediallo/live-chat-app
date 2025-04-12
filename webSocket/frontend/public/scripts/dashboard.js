@@ -6,10 +6,6 @@ function decodeToken(token) {
   return JSON.parse(decodedPayload);
 }
 
-const token = getToken();
-const userInfo = decodeToken(token);
-//console.log(userInfo, "decoded token");
-
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
@@ -17,8 +13,13 @@ const errorMsgEl = document.querySelector("#errorMsg");
 const prevPageBtn = document.querySelector("#prev-page-btn");
 const nextPageBtn = document.querySelector("#next-page-btn");
 const pageInfo = document.querySelector("#page-info");
-// const usernameEl = document.querySelector("#username");
+const usernameEl = document.querySelector("#username");
 const paginationControlsEl = document.querySelector("#pagination-controls");
+
+const token = getToken();
+const userInfo = decodeToken(token);
+
+usernameEl.textContent = `${userInfo.name}`;
 
 const state = {
   messages: [],
@@ -44,13 +45,6 @@ function createDOMElement(tag, content) {
   element.textContent = content;
   return element;
 }
-
-// // Style the prompt input for username
-// const user = prompt("Please enter your name");
-// if (!user) {
-//   alert("Username is required to join the chat.");
-//   throw new Error("Username is required");
-// }
 
 let socket = new WebSocket(`ws:localhost:3000/${token}`);
 const baseUrl = "http://localhost:3000";
@@ -301,9 +295,7 @@ async function fetchAllMessagesForAllUsers(page, limit = 5) {
     if (!resp.ok) {
       throw new Error(`Failed to fetch messages: ${resp.status}`);
     }
-    const data = await resp.json();
-    console.log(data, "====data");
-    const { messages, numOfPages } = data;
+    const { messages } = await resp.json();
 
     if (messages.length === 0) {
       errorMsgEl.textContent = "No messages found. Please send a message.";
@@ -312,10 +304,10 @@ async function fetchAllMessagesForAllUsers(page, limit = 5) {
     }
 
     state.pagination.currentPage = page;
-    // Replace the current messages with the new ones
-    state.messages = messages;
-    console.log(state.messages, "message in state in fetfh all messages");
+    state.messages = messages; // Replace the current messages with the new ones
     await fetchMessageReactions(state.messages);
+    console.log(state.likes, "LIKES IN FETCH");
+    console.log(state.likes, "DISLIKE IN FETCH");
     errorMsgEl.style.display = "none";
     render();
     updatePaginationControls();
@@ -330,10 +322,10 @@ async function fetchMessageReactions(messages) {
     const reactionsResp = await fetch(
       `${baseUrl}/api/v1/reactions/${message._id}`
     );
+
     if (reactionsResp.ok) {
       const { likesCount, dislikesCount, likedBy, dislikedBy } =
         await reactionsResp.json();
-      console.log(likesCount, dislikesCount, "likes and dislike");
       message.likes = likesCount;
       message.dislikes = dislikesCount;
       message.likedBy = likedBy || [];
@@ -350,6 +342,7 @@ async function fetchMessageReactions(messages) {
 async function fetchAllReactions() {
   try {
     const resp = await fetch(`${baseUrl}/api/v1/reactions`);
+    console.log("RESPONSE IN FETCH REACTIONS", resp);
     if (!resp.ok) {
       throw new Error(`Failed to fetch reactions: ${resp.status}`);
     }
