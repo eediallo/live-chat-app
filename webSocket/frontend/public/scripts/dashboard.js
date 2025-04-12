@@ -103,7 +103,6 @@ function showJoinMessageDialog(message) {
 
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
-  console.log(data, "data===>");
 
   switch (data.type) {
     case "message":
@@ -152,7 +151,6 @@ socket.onclose = () => {
 
 // Ensure the UI is updated with the correct likes and dislikes counts
 function updateMessageReactionsUI(data) {
-  console.log(data, "======data in like");
   const message = state.messages.find((m) => m._id === data.messageId);
   if (message) {
     if (data.type === "like") {
@@ -306,8 +304,6 @@ async function fetchAllMessagesForAllUsers(page, limit = 5) {
     state.pagination.currentPage = page;
     state.messages = messages; // Replace the current messages with the new ones
     await fetchMessageReactions(state.messages);
-    console.log(state.likes, "LIKES IN FETCH");
-    console.log(state.likes, "DISLIKE IN FETCH");
     errorMsgEl.style.display = "none";
     render();
     updatePaginationControls();
