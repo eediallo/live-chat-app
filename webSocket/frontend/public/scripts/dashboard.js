@@ -1,79 +1,235 @@
-import { isAuthenticated } from "./auth.js";
 import { getToken } from "./storage.js";
+
+function decodeToken(token) {
+  const payloadBase64 = token.split(".")[1];
+  const decodedPayload = atob(payloadBase64);
+  return JSON.parse(decodedPayload);
+}
+
+const token = getToken();
+const userInfo = decodeToken(token);
+//console.log(userInfo, "decoded token");
+
 const sendMsgBtn = document.querySelector("#send-msg-btn");
 const messageInput = document.querySelector("#message-input");
 const messageContainer = document.querySelector("#messages-container");
 const errorMsgEl = document.querySelector("#errorMsg");
+const prevPageBtn = document.querySelector("#prev-page-btn");
+const nextPageBtn = document.querySelector("#next-page-btn");
+const pageInfo = document.querySelector("#page-info");
+// const usernameEl = document.querySelector("#username");
+const paginationControlsEl = document.querySelector("#pagination-controls");
 
-const socket = new WebSocket("ws://localhost:3000");
-const baseUrl = "http://localhost:3000";
 const state = {
   messages: [],
+  name: null,
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+  },
+  likes: [],
+  dislikes: [],
 };
 
-socket.onopen = () => {
+let isSocketOpen = false;
+
+function createAndAppendElToContainer(tag, className, content, container) {
+  const element = createDOMElement(tag, content);
+  element.classList.add(className);
+  container.append(element);
+}
+
+function createDOMElement(tag, content) {
+  const element = document.createElement(tag, content);
+  element.textContent = content;
+  return element;
+}
+
+// // Style the prompt input for username
+// const user = prompt("Please enter your name");
+// if (!user) {
+//   alert("Username is required to join the chat.");
+//   throw new Error("Username is required");
+// }
+
+let socket = new WebSocket(`ws:localhost:3000`);
+const baseUrl = "http://localhost:3000";
+
+socket.onopen = async () => {
+  isSocketOpen = true;
   console.log("SOCKET OPENED");
+
+  try {
+    // Fetch the total number of pages first
+    const url = `${baseUrl}/api/v1/messages/all?limit=5`;
+    const resp = await fetch(url);
+    let data;
+    try {
+      data = await resp.json();
+    } catch (e) {
+      throw new Error("Failed to parse JSON response: " + e.message);
+    }
+    console.log("data in ONOPEN===>", data);
+
+    if (!resp.ok) {
+      console.error(`Failed to fetch total pages: ${resp.status}`);
+      errorMsgEl.textContent = data.msg || "An error occurred.";
+      paginationControlsEl.style.display = "none";
+      return;
+    }
+
+    const { numOfPages } = data;
+    state.pagination.totalPages = numOfPages;
+    errorMsgEl.style.display = "none";
+
+    // Fetch the last page of messages
+    await fetchAllMessagesForAllUsers(state.pagination.totalPages);
+    render();
+  } catch (e) {
+    errorMsgEl.textContent = e.message || "An unexpected error occurred.";
+    paginationControlsEl.style.display = "none";
+    console.error("Error fetching total pages or messages:", e);
+  }
 };
+
+//display  join message in a dialog box
+function showJoinMessageDialog(message) {
+  const dialog = createDOMElement("dialog", message);
+
+  const closeButton = createDOMElement("button", "Close");
+  closeButton.addEventListener("click", () => {
+    dialog.close();
+    dialog.remove();
+  });
+
+  dialog.appendChild(closeButton);
+  document.body.appendChild(dialog);
+  dialog.showModal();
+}
 
 socket.onmessage = (evt) => {
-  const msg = JSON.parse(evt.data);
-  // Add the new message to the state and re-render the messages
-  state.messages.push(msg);
-  render();
+  const data = JSON.parse(evt.data);
+  console.log(data, "data===>");
+
+  switch (data.type) {
+    case "message":
+      state.messages.push(data);
+
+      // Create a new page if message count exceeds 5
+      if (state.messages.length > 5) {
+        state.pagination.currentPage += 1;
+        state.messages = [data];
+        state.pagination.totalPages = state.pagination.currentPage;
+      }
+
+      render();
+      break;
+
+    case "like":
+      updateMessageReactionsUI(data);
+      break;
+
+    case "dislike":
+      updateMessageReactionsUI(data);
+      break;
+
+    case "join":
+      showJoinMessageDialog(data.message);
+      break;
+
+    case "error":
+      alert(data.message); // Display the error message to the user
+      break;
+
+    default:
+      console.warn("Unknown message type:", data.type);
+  }
 };
 
-socket.onerror = () => {
+socket.onerror = (evt) => {
   console.log("SOMETHING WENT WRONG..");
-};
-
-socket.onclose = (evt) => {
-  console.log("WEBSOCKET CLOSE...");
   console.log(evt.data);
 };
 
-async function sendMessage(message) {
-  if (socket.readyState === WebSocket.OPEN) {
-    const token = getToken();
-    const sender = decodeToken(token);
-    const timestamp = new Date().toISOString();
-    const payload = {
-      message,
-      sender,
-      createdAt: timestamp, // Ensure createdAt is set to a valid ISO string
-    };
-    socket.send(JSON.stringify(payload));
+socket.onclose = () => {
+  isSocketOpen = false;
+  console.log("WEBSOCKET CLOSE...");
+};
 
-    try {
-      // Save the message to the database
-      const response = await fetch(`${baseUrl}/api/v1/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ message }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save message to the database");
-      }
-
-      console.log("Message saved to the database");
-    } catch (error) {
-      console.error("Error saving message to the database:", error);
+// Ensure the UI is updated with the correct likes and dislikes counts
+function updateMessageReactionsUI(data) {
+  console.log(data, "======data in like");
+  const message = state.messages.find((m) => m._id === data.messageId);
+  if (message) {
+    if (data.type === "like") {
+      message.likes = data.likes || 0;
+    } else if (data.type === "dislike") {
+      message.dislikes = data.dislikes || 0;
     }
-  } else {
-    console.error("WebSocket is not open. Cannot send message.");
   }
+
+  // Update UI for this specific message
+  const messageEl = document.querySelector(
+    `[data-message-id="${data.messageId}"]`
+  );
+  if (messageEl) {
+    const likeButton = messageEl.querySelector(".like-btn");
+    const dislikeButton = messageEl.querySelector(".dislike-btn");
+
+    if (likeButton) {
+      likeButton.textContent = `👍 ${message.likes || 0}`;
+    }
+    if (dislikeButton) {
+      dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
+    }
+  }
+}
+
+async function sendMessage(text) {
+  try {
+    if (socket.readyState === WebSocket.OPEN) {
+      const timestamp = new Date().toISOString();
+      const payload = {
+        type: "message",
+        text,
+        sender: {
+          name: userInfo.name,
+        },
+        createdAt: timestamp,
+      };
+      socket.send(JSON.stringify(payload));
+      // Hide the error message if it is visible
+      errorMsgEl.style.display = "none";
+    } else {
+      console.error("WebSocket is not open. Cannot send message.");
+    }
+  } catch (e) {
+    if (e.code === 11000) {
+      console.log("11000 error");
+    }
+  }
+}
+
+async function likeMessagePayload(messageId) {
+  const payload = {
+    type: "like",
+    messageId: messageId,
+  };
+  socket.send(JSON.stringify(payload));
+}
+
+async function dislikeMessagePayload(messageId) {
+  const payload = {
+    type: "dislike",
+    messageId: messageId,
+  };
+  socket.send(JSON.stringify(payload));
 }
 
 function sendMessageHandler(e) {
   e.preventDefault();
-  const message = messageInput.value;
-  if (!message) {
-    return;
-  }
-  sendMessage(message);
+  const text = messageInput.value;
+  sendMessage(text);
   messageInput.value = "";
 }
 
@@ -82,22 +238,36 @@ sendMsgBtn.addEventListener("click", sendMessageHandler);
 function createMessageCard(message) {
   const li = document.createElement("li");
   li.classList.add("message");
+  li.setAttribute("data-message-id", message._id);
+  li.setAttribute("data-user-id", message.sender.id);
 
   const timestamp = new Date(message.createdAt).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
 
-  const time = document.createElement("i");
-  time.textContent = ` ${timestamp}`;
+  const time = createDOMElement("i", ` ${timestamp}`);
+  const sender = createDOMElement("b", message.sender.name);
+  const text = createDOMElement("p", message.message);
 
-  const name = document.createElement("b");
-  name.textContent = message.sender.name;
+  // Like Button
+  const likeButton = createDOMElement("button", `👍 ${message.likes || 0}`);
+  likeButton.classList.add("like-btn");
+  likeButton.addEventListener("click", () => {
+    likeMessagePayload(message._id);
+  });
 
-  const text = document.createElement("p");
-  text.textContent = message.message;
+  // Dislike Button
+  const dislikeButton = createDOMElement(
+    "button",
+    `👎 ${message.dislikes || 0}`
+  );
+  dislikeButton.classList.add("dislike-btn");
+  dislikeButton.addEventListener("click", () => {
+    dislikeMessagePayload(message._id);
+  });
 
-  li.append(name, time, text);
+  li.append(sender, time, text, likeButton, dislikeButton);
   return li;
 }
 
@@ -106,14 +276,17 @@ function render() {
 
   let currentDate = null;
   state.messages.forEach((message) => {
+    //console.log(message, "message in render");
     const messageDate = new Date(message.createdAt).toLocaleDateString();
 
     if (messageDate !== currentDate) {
       currentDate = messageDate;
-      const dateHeader = document.createElement("div");
-      dateHeader.classList.add("date-header");
-      dateHeader.textContent = currentDate;
-      messageContainer.append(dateHeader);
+      createAndAppendElToContainer(
+        "div",
+        "date-header",
+        currentDate,
+        messageContainer
+      );
     }
 
     const messageCard = createMessageCard(message);
@@ -121,32 +294,91 @@ function render() {
   });
 }
 
-function decodeToken(token) {
-  const payloadBase64 = token.split(".")[1];
-  const decodedPayload = atob(payloadBase64);
-  return JSON.parse(decodedPayload);
-}
-
-async function fetchAllMessagesForAllUsers() {
+async function fetchAllMessagesForAllUsers(page, limit = 5) {
   try {
-    const resp = await fetch(`${baseUrl}/api/v1/messages/all`);
+    const url = `${baseUrl}/api/v1/messages/all?page=${page}&limit=${limit}`;
+    const resp = await fetch(url);
     if (!resp.ok) {
       throw new Error(`Failed to fetch messages: ${resp.status}`);
     }
-    const { messages } = await resp.json();
+    const data = await resp.json();
+    console.log(data, "====data");
+    const { messages, numOfPages } = data;
+
+    if (messages.length === 0) {
+      errorMsgEl.textContent = "No messages found. Please send a message.";
+      errorMsgEl.style.display = "block";
+      return;
+    }
+
+    state.pagination.currentPage = page;
+    // Replace the current messages with the new ones
     state.messages = messages;
-  } catch (e) {
-    console.log(e)
-  }
-}
-
-async function main() {
-  if (!isAuthenticated()) {
-    window.location.href = "/login.html";
-  } else {
-    await fetchAllMessagesForAllUsers();
+    console.log(state.messages, "message in state in fetfh all messages");
+    await fetchMessageReactions(state.messages);
+    errorMsgEl.style.display = "none";
     render();
+    updatePaginationControls();
+  } catch (e) {
+    errorMsgEl.textContent = `An error occurred while fetching messages: ${e.message}`;
+    errorMsgEl.style.display = "block";
   }
 }
 
-window.onload = main;
+async function fetchMessageReactions(messages) {
+  for (let message of messages) {
+    const reactionsResp = await fetch(
+      `${baseUrl}/api/v1/reactions/${message._id}`
+    );
+    if (reactionsResp.ok) {
+      const { likesCount, dislikesCount, likedBy, dislikedBy } =
+        await reactionsResp.json();
+      console.log(likesCount, dislikesCount, "likes and dislike");
+      message.likes = likesCount;
+      message.dislikes = dislikesCount;
+      message.likedBy = likedBy || [];
+      message.dislikedBy = dislikedBy || [];
+    } else {
+      message.likes = 0;
+      message.dislikes = 0;
+      message.likedBy = [];
+      message.dislikedBy = [];
+    }
+  }
+}
+
+async function fetchAllReactions() {
+  try {
+    const resp = await fetch(`${baseUrl}/api/v1/reactions`);
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch reactions: ${resp.status}`);
+    }
+    const { likes, dislikes } = await resp.json();
+    state.likes = likes;
+    state.dislikes = dislikes;
+  } catch (e) {
+    console.log(e.msg);
+  }
+}
+
+function updatePaginationControls() {
+  pageInfo.textContent = `Page ${state.pagination.currentPage} of ${state.pagination.totalPages}`;
+  prevPageBtn.disabled = state.pagination.currentPage === 1;
+  nextPageBtn.disabled =
+    state.pagination.currentPage === state.pagination.totalPages;
+}
+
+prevPageBtn.addEventListener("click", () => {
+  if (isSocketOpen && state.pagination.currentPage > 1) {
+    fetchAllMessagesForAllUsers(state.pagination.currentPage - 1);
+  }
+});
+
+nextPageBtn.addEventListener("click", () => {
+  if (
+    isSocketOpen &&
+    state.pagination.currentPage < state.pagination.totalPages
+  ) {
+    fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
+  }
+});
