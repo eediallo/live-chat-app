@@ -15,6 +15,7 @@ const nextPageBtn = document.querySelector("#next-page-btn");
 const pageInfo = document.querySelector("#page-info");
 const usernameEl = document.querySelector("#username");
 const paginationControlsEl = document.querySelector("#pagination-controls");
+const onlineUsersEl = document.querySelector("#online-users");
 
 const token = getToken();
 const userInfo = decodeToken(token);
@@ -127,6 +128,10 @@ socket.onmessage = (evt) => {
 
     case "join":
       showJoinMessageDialog(data.message);
+      break;
+
+    case "user_count":
+      onlineUsersEl.textContent = data.count;
       break;
 
     case "error":
