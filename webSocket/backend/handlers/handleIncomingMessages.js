@@ -57,7 +57,9 @@ export const saveReactionToDb = async (
     });
 
     if (existingReaction) {
-      throw new Error(`You have already ${reactionType}d this message.`);
+      // If the user has already reacted, undo the reaction
+      await ReactionModel.deleteOne({ messageId, userId });
+      return { message: `${reactionType} undone successfully.` };
     }
 
     if (existingOppositeReaction) {
@@ -73,9 +75,6 @@ export const saveReactionToDb = async (
     ).populate("userId", "_id name");
     return populatedReaction;
   } catch (e) {
-    if (e.message === `You have already ${reactionType}d this message.`) {
-      return { error: e.message };
-    }
     console.error(`Error ${reactionType}ing message`, e);
     return { error: `An error occurred while ${reactionType}ing the message.` };
   }
