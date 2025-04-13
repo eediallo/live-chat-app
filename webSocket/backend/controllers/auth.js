@@ -49,4 +49,19 @@ const register = async (req, res) => {
   }
 };
 
+export const getNumberOfUsers = async (_, res) => {
+  try {
+    const numberOfUsers = await User.countDocuments();
+    if (!numberOfUsers) {
+      return res.status(StatusCodes.NOT_FOUND).json({ msg: "No users found" });
+    }
+
+    res.status(StatusCodes.OK).json(numberOfUsers);
+  } catch (e) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Something went wrong. Please try again later." });
+  }
+};
+
 export { login, register };
