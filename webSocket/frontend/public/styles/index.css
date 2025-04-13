@@ -57,3 +57,26 @@ h1{
 
 
 
+.start-chat-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(82, 188, 82);
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    gap: 10px;
+}
+
+.start-chat-btn img {
+    width: 16px;
+    height: 16px;
+}
+
+.start-chat-btn:hover {
+    background-color: rgb(72, 168, 72);
+}
