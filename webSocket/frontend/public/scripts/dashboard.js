@@ -250,7 +250,22 @@ function createMessageCard(message) {
   const likeButton = createDOMElement("button", `👍 ${message.likes || 0}`);
   likeButton.classList.add("like-btn");
   likeButton.addEventListener("click", () => {
-    likeMessagePayload(message._id);
+    if (message.likedBy.includes(userInfo.name)) {
+      message.likes -= 1;
+      message.likedBy = message.likedBy.filter((user) => user !== userInfo.name);
+      likeMessagePayload(message._id); // Reset like on server
+    } else {
+      if (message.dislikedBy.includes(userInfo.name)) {
+        message.dislikes -= 1;
+        message.dislikedBy = message.dislikedBy.filter(
+          (user) => user !== userInfo.name
+        );
+      }
+      message.likes += 1;
+      message.likedBy.push(userInfo.name);
+      likeMessagePayload(message._id);
+    }
+    render();
   });
 
   // Dislike Button
@@ -260,7 +275,24 @@ function createMessageCard(message) {
   );
   dislikeButton.classList.add("dislike-btn");
   dislikeButton.addEventListener("click", () => {
-    dislikeMessagePayload(message._id);
+    if (message.dislikedBy.includes(userInfo.name)) {
+      message.dislikes -= 1;
+      message.dislikedBy = message.dislikedBy.filter(
+        (user) => user !== userInfo.name
+      );
+      dislikeMessagePayload(message._id); // Reset dislike on server
+    } else {
+      if (message.likedBy.includes(userInfo.name)) {
+        message.likes -= 1;
+        message.likedBy = message.likedBy.filter(
+          (user) => user !== userInfo.name
+        );
+      }
+      message.dislikes += 1;
+      message.dislikedBy.push(userInfo.name);
+      dislikeMessagePayload(message._id);
+    }
+    render();
   });
 
   li.append(sender, time, text, likeButton, dislikeButton);
