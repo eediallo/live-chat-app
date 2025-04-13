@@ -28,13 +28,14 @@ const register = async (e) => {
 
     if (!response.ok) {
       // Display the error message from the server if available
-      const errorMessage = data.msg || "Failed to register user.";
+      const errorMessage = data.msg || "Registration failed. Please try again.";
       errMsgEl.textContent = errorMessage;
       errMsgEl.style.color = "red";
       return;
     }
 
     errMsgEl.textContent = "Your account has been successfully created.";
+    errMsgEl.style.color = "green";
     setToken(data.token);
     setTimeout(() => {
       window.location.href = "/login.html";

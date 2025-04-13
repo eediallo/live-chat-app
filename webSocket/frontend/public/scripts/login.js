@@ -19,13 +19,16 @@ const login = async (e) => {
       },
       body: JSON.stringify(body),
     });
-    const { token } = await response.json();
-    if (response.ok) {
-      setToken(token);
-      window.location.href = "/dashboard.html";
-    } else {
-      document.getElementById("msg").innerText = "Invalid email or password";
+    const { token, msg } = await response.json();
+
+    if (msg) {
+      const errorMessage = msg || "login Failed. Please try again.";
+      msgEl.textContent = errorMessage;
+      msgEl.style.color = "red";
+      return;
     }
+    setToken(token);
+    window.location.href = "/dashboard.html";
   } catch (error) {
     console.error("An error occurred:", error);
     msgEl.innerText = "An error occurred. Please try again later.";
