@@ -7,7 +7,13 @@ import {
   onlineUsersEl,
 } from "./domQueries.js";
 import { state } from "./state.js";
-import { fetchAllMessagesForAllUsers, userInfo, token, fetchTotalNumberOfPages } from "./data.js";
+import {
+  fetchAllMessagesForAllUsers,
+  userInfo,
+  token,
+  fetchTotalNumberOfPages,
+  fetchTotalMembers,
+} from "./data.js";
 import {
   render,
   showJoinMessageDialog,
@@ -21,6 +27,7 @@ socket.onopen = async () => {
   state.isSocket = true;
   console.log("SOCKET OPENED");
 
+  await fetchTotalMembers();
   try {
     // Fetch the total number of pages first
     const totalPages = await fetchTotalNumberOfPages();
