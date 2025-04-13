@@ -8,26 +8,45 @@ const login = async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json({ msg: "Email and password are required" });
   }
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ msg: "Invalid credentials" });
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ msg: "Invalid credentials" });
+    }
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ msg: "Invalid credentials" });
+    }
+    const token = user.createJWT();
+    res.status(StatusCodes.OK).json({ token });
+  } catch (e) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Something went wrong. Please try again later" });
   }
-  const isMatch = await user.matchPassword(password);
-  if (!isMatch) {
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({ msg: "Invalid credentials" });
-  }
-  const token = user.createJWT();
-  res.status(StatusCodes.OK).json({ token });
 };
 
 const register = async (req, res) => {
-  const user = await User.create(req.body);
-  const token = user.createJWT();
-  res.status(StatusCodes.CREATED).json({ token });
+  try {
+    const user = await User.create(req.body);
+    const token = user.createJWT();
+    res.status(StatusCodes.CREATED).json({ token });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      const errorMessage = Object.values(error.errors)
+        .map((err) => err.message)
+        .join(", ");
+      return res.status(StatusCodes.BAD_REQUEST).json({ msg: errorMessage });
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Something went wrong. Please try again later" });
+  }
 };
 
 export { login, register };
