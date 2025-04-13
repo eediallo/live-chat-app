@@ -6,6 +6,21 @@ body{
     margin: 0 auto;
 }
 
+.logo{
+    width: 100px;
+    height: auto;
+}
+
+#logout-btn{
+    background-color: rgb(82, 188, 82);
+}
+
+#logout-btn:hover{
+    background-color: rgb(72, 168, 72);
+}
+
+
+
 header{
     display: flex;
     justify-content: space-around;

@@ -12,6 +12,8 @@ body {
     font-style: normal;
     background-color: #FAFAFB;
 }
+
+
 .registration-container {
     display: flex;
     flex-direction: column;
