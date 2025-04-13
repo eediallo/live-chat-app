@@ -123,11 +123,35 @@ const deleteMessage = async (messageId, userId) => {
   }
 };
 
+const editMessage = async (messageId, userId, newText) => {
+  try {
+    // Find the message to ensure it exists and was sent by the user
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return { error: "Message not found." };
+    }
+
+    if (message.sender.id.toString() !== userId) {
+      return { error: "You can only edit messages you have sent." };
+    }
+
+    // Update the message text
+    message.message = newText;
+    await message.save();
+
+    return { message: "Message edited successfully.", updatedMessage: message };
+  } catch (error) {
+    console.error("Error editing message", error);
+    return { error: "An error occurred while editing the message." };
+  }
+};
+
 export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
   try {
     const data = JSON.parse(dataString);
-    const { messageId } = data;
+    const { messageId, newText } = data;
     const userInfo = userConnection.get(ws); // get user info from ws
     const userId = userInfo?.userId;
     let result;
@@ -161,6 +185,17 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
           return;
         }
         break;
+
+      case "edit":
+        result = await editMessage(messageId, userId, newText);
+        console.log(result, '==EDITING===')
+        if (result.error) {
+          // Send the error message only to the concerned user
+          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          return;
+        }
+        return { ...result.updatedMessage._doc, type: "edit" };
+
       default:
         const { _doc: message } = await saveMsgToDb(data);
         return { ...message, type: "message" };
