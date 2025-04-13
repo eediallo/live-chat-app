@@ -3,7 +3,7 @@ import { Dislike } from "../models/dislike.js";
 import { User } from "../models/user.js";
 import { Message } from "../models/message.js";
 
-export const saveMsgToDb = async (data) => {
+ const saveMsgToDb = async (data) => {
   const { sender, text, createdAt } = data;
   const username = sender.name;
 
@@ -40,7 +40,7 @@ export const saveMsgToDb = async (data) => {
   }
 };
 
-export const saveReactionToDb = async (
+ const saveReactionToDb = async (
   reactionData,
   userId,
   ReactionModel,
@@ -81,13 +81,13 @@ export const saveReactionToDb = async (
 };
 
 // Wrapper functions for like and dislike
-export const saveLikeToDb = (likeData, userId) =>
+ const saveLikeToDb = (likeData, userId) =>
   saveReactionToDb(likeData, userId, Like, Dislike, "like");
 
-export const saveDislikeToDb = (dislikeData, userId) =>
+ const saveDislikeToDb = (dislikeData, userId) =>
   saveReactionToDb(dislikeData, userId, Dislike, Like, "dislike");
 
-export const getMessageReactionCounts = async (messageId) => {
+ const getMessageReactionCounts = async (messageId) => {
   try {
     const [likes, dislikes] = await Promise.all([
       Like.countDocuments({ messageId }),
@@ -99,6 +99,7 @@ export const getMessageReactionCounts = async (messageId) => {
     return null;
   }
 };
+
 
 export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
