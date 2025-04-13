@@ -10,14 +10,13 @@ dotenv.config();
 import { notFound } from "./middleware/notFound.js";
 import { errorHandlerMiddleware } from "./middleware/errorHandler.js";
 import { reactionRouter } from "./routes/reaction.js";
-import { handleIncomingMessages
-  
- } from "./handlers/handleIncomingMessages.js";
+import { handleIncomingMessages } from "./handlers/handleIncomingMessages.js";
 const app = express();
 const server = http.createServer(app);
 
 const wss = new WebSocketServer({ server, clientTracking: true });
 const userConnection = new Map();
+const clients = new Set();
 
 function decodeToken(token) {
   const payloadBase64 = token.split(".")[1];
@@ -28,6 +27,11 @@ function decodeToken(token) {
 // wss connection event
 wss.on("connection", async (ws, req) => {
   console.log("New client connected");
+
+  clients.add(ws)
+  broadcastNumberOfClients()
+
+
   const token = req.url.split("/")[1];
   const userInfo = decodeToken(token);
   const { id, name } = userInfo;
@@ -67,12 +71,28 @@ wss.on("connection", async (ws, req) => {
   ws.on("close", () => {
     console.log("Client disconnected");
     userConnection.delete(ws);
+    broadcastNumberOfClients()
   });
 });
 
 wss.on("error", (error) => {
   console.error("WebSocket error:", error);
+  broadcastNumberOfClients()
 });
+
+function broadcastNumberOfClients() {
+  const numberOfClients = clients.size;
+  console.log("Number of connected users:", numberOfClients);
+
+  // If you want to let all connected users know the count, you can do this:
+  clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({ type: "user_count", count: numberOfClients })
+      );
+    }
+  });
+}
 
 const port = process.env.PORT || 3000;
 
