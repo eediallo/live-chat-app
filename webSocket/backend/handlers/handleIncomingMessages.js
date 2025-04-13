@@ -188,7 +188,6 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
 
       case "edit":
         result = await editMessage(messageId, userId, newText);
-        console.log(result, "==EDITING===");
         if (result.error) {
           // Send the error message only to the concerned user
           ws.send(JSON.stringify({ type: "error", message: result.error }));
@@ -199,7 +198,8 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
 
       default:
         const { _doc: message } = await saveMsgToDb(data);
-        return { ...message, type: "message" };
+        // Ensure likedBy and dislikedBy are included in the response
+        return { ...message, type: "message", likedBy: [], dislikedBy: [] };
     }
   } catch (error) {
     console.error("Error parsing message", error);
