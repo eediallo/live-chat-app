@@ -6,7 +6,7 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const nameInput = document.getElementById("name");
 const registerBtn = document.getElementById("register-btn");
-const errMsg = document.getElementById("msg");
+const errMsgEl = document.getElementById("errorMsg");
 
 const register = async (e) => {
   e.preventDefault();
@@ -23,18 +23,25 @@ const register = async (e) => {
       },
       body: JSON.stringify(body),
     });
+
     const data = await response.json();
 
-    if (response.ok) {
-      alert("User registered successfully");
-      setToken(data.token);
-      window.location.href = "/login.html";
-    } else {
-      document.getElementById("msg").innerText = data.msg;
+    if (!response.ok) {
+      // Display the error message from the server if available
+      const errorMessage = data.msg || "Failed to register user.";
+      errMsgEl.textContent = errorMessage;
+      errMsgEl.style.color = "red";
+      return;
     }
+
+    errMsgEl.textContent = "Your account has been successfully created.";
+    setToken(data.token);
+    setTimeout(() => {
+      window.location.href = "/login.html";
+    }, 500);
   } catch (error) {
     console.error("Error occurred:", error);
-    errMsg.innerText = data.msg;
+    errMsgEl.textContent = "An unexpected error occurred. Please try again.";
   }
 };
 
