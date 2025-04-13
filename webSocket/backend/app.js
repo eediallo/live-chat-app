@@ -71,7 +71,8 @@ wss.on("connection", async (ws, req) => {
   ws.on("close", () => {
     console.log("Client disconnected");
     userConnection.delete(ws);
-    broadcastNumberOfClients()
+    clients.delete(ws); 
+    broadcastNumberOfClients();
   });
 });
 
