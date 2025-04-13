@@ -7,13 +7,27 @@
     <script type="module" src="./scripts/dashboard.js" defer></script>
     <script type="module" src="./scripts/logout.js"></script>
     <link rel="stylesheet" href="./styles/dashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" src="./scripts/main.js" defer></script>
   </head>
   <body>
     <header>
       <img class="logo" src="./images/logo.png" alt="logo" />
-      <p>
-        You are connected as <b><i id="username"></i></b>
-      </p>
+
+      <div class="members-info">
+        <span>
+          You are connected as <b><i id="username"></i></b>
+        </span>
+
+        <span>
+          Total members: <b><i id="total-members"></i></b>
+        </span>
+
+        <span>
+          Currently online: <b><i id="total-connected"></i></b>
+        </span>
+      </div>
+
       <a id="logout-btn"
         ><img class="logout-img" src="./images/logout.svg" alt="logout"
       /></a>
