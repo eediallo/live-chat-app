@@ -149,39 +149,38 @@ const editMessage = async (messageId, userId, newText) => {
 
 export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
+
   try {
     const data = JSON.parse(dataString);
-    const { messageId, newText } = data;
-    const userInfo = userConnection.get(ws); // get user info from ws
+    const { messageId, newText, type } = data;
+    const userInfo = userConnection.get(ws); // Retrieve user info from WebSocket
     const userId = userInfo?.userId;
+
     let result;
 
-    switch (data.type) {
+    switch (type) {
       case "like":
         result = await saveLikeToDb(data, userId);
         if (result.error) {
-          // Send the error message only to the concerned user
-          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          sendErrorResponse(ws, result);
           return;
         }
-        const likesCounts = await getMessageReactionCounts(messageId);
-        return { ...result._doc, type: "like", ...likesCounts };
+        const likeCounts = await getMessageReactionCounts(messageId);
+        return { ...result._doc, type: "like", ...likeCounts };
 
       case "dislike":
         result = await saveDislikeToDb(data, userId);
         if (result.error) {
-          // Send the error message only to the concerned user
-          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          sendErrorResponse(ws, result);
           return;
         }
-        const dislikesCounts = await getMessageReactionCounts(messageId);
-        return { ...result._doc, type: "dislike", ...dislikesCounts };
+        const dislikeCounts = await getMessageReactionCounts(messageId);
+        return { ...result._doc, type: "dislike", ...dislikeCounts };
 
       case "delete":
         result = await deleteMessage(messageId, userId);
         if (result.error) {
-          // Send the error message only to the concerned user
-          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          sendErrorResponse(ws, result);
           return;
         }
         break;
@@ -189,21 +188,22 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
       case "edit":
         result = await editMessage(messageId, userId, newText);
         if (result.error) {
-          // Send the error message only to the concerned user
-          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          sendErrorResponse(ws, result);
           return;
         }
-        // Send the updated message to all clients
         return { ...result.updatedMessage._doc, type: "edit" };
 
       default:
-        const { _doc: message } = await saveMsgToDb(data);
-        // Ensure likedBy and dislikedBy are included in the response
-        return { ...message, type: "message", likedBy: [], dislikedBy: [] };
+        const savedMessage = await saveMsgToDb(data);
+        return {
+          ...savedMessage._doc,
+          type: "message",
+          likedBy: [],
+          dislikedBy: [],
+        };
     }
   } catch (error) {
-    console.error("Error parsing message", error);
-    // Send a generic error message only to the concerned user
+    console.error("Error handling incoming message", error);
     ws.send(
       JSON.stringify({
         type: "error",
@@ -212,3 +212,8 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
     );
   }
 };
+
+
+function sendErrorResponse(ws, result) {
+  ws.send(JSON.stringify({ type: "error", message: result.error }));
+}
