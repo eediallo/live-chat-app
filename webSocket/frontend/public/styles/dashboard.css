@@ -39,7 +39,7 @@ input{
 }
 
 #send-msg-btn {
-    background-color: green;
+    background-color: rgb(82, 188, 82);
     color: white;
     padding: 10px;
     border: none;
@@ -72,4 +72,88 @@ input{
 .members-info{
     display: flex;
     gap: 20px;
+}
+
+
+
+#pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#prev-page-btn, #next-page-btn {
+    background-color: rgb(82, 188, 82);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#prev-page-btn:disabled, #next-page-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#prev-page-btn:hover:not(:disabled), #next-page-btn:hover:not(:disabled) {
+    background-color: rgb(72, 168, 72);
+}
+
+#page-info {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.date-header {
+    text-align: center;
+    display: flex;
+    align-items: center;
+}
+
+.date-header::before,
+.date-header::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid #ccc;
+    margin: 0 10px;
+}
+
+/* Style the dialog box for join messages */
+dialog {
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+}
+
+dialog button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: rgb(82, 188, 82);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+dialog button:hover {
+    background-color: #0056b3;
+}
+
+#errorMsg{
+    color: red;
+    font-weight: 24px;
+    text-align: center;
 }
