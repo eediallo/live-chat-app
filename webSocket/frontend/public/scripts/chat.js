@@ -117,6 +117,15 @@ async function sendMessagePayload(text) {
   }
 }
 
+function sendMessageHandler(e) {
+  e.preventDefault();
+  const text = messageInput.value;
+  sendMessagePayload(text);
+  messageInput.value = "";
+}
+
+sendMsgBtn.addEventListener("click", sendMessageHandler);
+
 export async function likeMessagePayload(messageId) {
   const payload = {
     type: "like",
@@ -132,12 +141,18 @@ export async function dislikeMessagePayload(messageId) {
   };
   socket.send(JSON.stringify(payload));
 }
-
-function sendMessageHandler(e) {
-  e.preventDefault();
-  const text = messageInput.value;
-  sendMessagePayload(text);
-  messageInput.value = "";
+export async function deleteMessagePayload(messageId) {
+  const payload = {
+    type: "delete",
+    messageId: messageId,
+  };
+  socket.send(JSON.stringify(payload));
 }
 
-sendMsgBtn.addEventListener("click", sendMessageHandler);
+export async function editMessagePayload(messageId) {
+  const payload = {
+    type: "edit",
+    messageId: messageId,
+  };
+  socket.send(JSON.stringify(payload));
+}
