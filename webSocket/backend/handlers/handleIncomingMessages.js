@@ -140,7 +140,7 @@ const editMessage = async (messageId, userId, newText) => {
     message.message = newText;
     await message.save();
 
-    return { message: "Message edited successfully.", updatedMessage: message };
+    return { updatedMessage: message };
   } catch (error) {
     console.error("Error editing message", error);
     return { error: "An error occurred while editing the message." };
@@ -188,12 +188,13 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
 
       case "edit":
         result = await editMessage(messageId, userId, newText);
-        console.log(result, '==EDITING===')
+        console.log(result, "==EDITING===");
         if (result.error) {
           // Send the error message only to the concerned user
           ws.send(JSON.stringify({ type: "error", message: result.error }));
           return;
         }
+        // Send the updated message to all clients
         return { ...result.updatedMessage._doc, type: "edit" };
 
       default:
