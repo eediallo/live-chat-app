@@ -20,6 +20,49 @@ export function createDOMElement(tag, content) {
   return element;
 }
 
+//display  join message in a dialog box
+export function showJoinMessageDialog(message) {
+  const dialog = createDOMElement("dialog", message);
+
+  const closeButton = createDOMElement("button", "Close");
+  closeButton.addEventListener("click", () => {
+    dialog.close();
+    dialog.remove();
+  });
+
+  dialog.appendChild(closeButton);
+  document.body.appendChild(dialog);
+  dialog.showModal();
+}
+
+// Ensure the UI is updated with the correct likes and dislikes counts
+export function updateMessageReactionsUI(data) {
+  const message = state.messages.find((m) => m._id === data.messageId);
+  if (message) {
+    if (data.type === "like") {
+      message.likes = data.likes || 0;
+    } else if (data.type === "dislike") {
+      message.dislikes = data.dislikes || 0;
+    }
+  }
+
+  // Update UI for this specific message
+  const messageEl = document.querySelector(
+    `[data-message-id="${data.messageId}"]`
+  );
+  if (messageEl) {
+    const likeButton = messageEl.querySelector(".like-btn");
+    const dislikeButton = messageEl.querySelector(".dislike-btn");
+
+    if (likeButton) {
+      likeButton.textContent = `👍 ${message.likes || 0}`;
+    }
+    if (dislikeButton) {
+      dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
+    }
+  }
+}
+
 function createMessageCard(message) {
   const li = document.createElement("li");
   li.classList.add("message");

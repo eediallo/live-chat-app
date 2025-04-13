@@ -8,17 +8,17 @@ import {
 } from "./domQueries.js";
 import { state } from "./state.js";
 import { fetchAllMessagesForAllUsers, userInfo, token } from "./data.js";
-import { render, createDOMElement } from "./render.js";
-
-
-
-usernameEl.textContent = `${userInfo.name}`;
-
+import {
+  render,
+  showJoinMessageDialog,
+  updateMessageReactionsUI,
+} from "./render.js";
 
 let socket = new WebSocket(`ws:localhost:3000/${token}`);
 const baseUrl = "http://localhost:3000";
 
 socket.onopen = async () => {
+  usernameEl.textContent = `${userInfo.name}`; // display name of connected user
   state.isSocket = true;
   console.log("SOCKET OPENED");
 
@@ -53,21 +53,6 @@ socket.onopen = async () => {
     console.error("Error fetching total pages or messages:", e);
   }
 };
-
-//display  join message in a dialog box
-function showJoinMessageDialog(message) {
-  const dialog = createDOMElement("dialog", message);
-
-  const closeButton = createDOMElement("button", "Close");
-  closeButton.addEventListener("click", () => {
-    dialog.close();
-    dialog.remove();
-  });
-
-  dialog.appendChild(closeButton);
-  document.body.appendChild(dialog);
-  dialog.showModal();
-}
 
 socket.onmessage = (evt) => {
   const data = JSON.parse(evt.data);
@@ -117,39 +102,11 @@ socket.onerror = (evt) => {
 };
 
 socket.onclose = () => {
-  isSocketOpen = false;
+  state.isSocket = false;
   console.log("WEBSOCKET CLOSE...");
 };
 
-// Ensure the UI is updated with the correct likes and dislikes counts
-function updateMessageReactionsUI(data) {
-  const message = state.messages.find((m) => m._id === data.messageId);
-  if (message) {
-    if (data.type === "like") {
-      message.likes = data.likes || 0;
-    } else if (data.type === "dislike") {
-      message.dislikes = data.dislikes || 0;
-    }
-  }
-
-  // Update UI for this specific message
-  const messageEl = document.querySelector(
-    `[data-message-id="${data.messageId}"]`
-  );
-  if (messageEl) {
-    const likeButton = messageEl.querySelector(".like-btn");
-    const dislikeButton = messageEl.querySelector(".dislike-btn");
-
-    if (likeButton) {
-      likeButton.textContent = `👍 ${message.likes || 0}`;
-    }
-    if (dislikeButton) {
-      dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
-    }
-  }
-}
-
-async function sendMessage(text) {
+async function sendMessagePayload(text) {
   try {
     if (socket.readyState === WebSocket.OPEN) {
       const timestamp = new Date().toISOString();
@@ -193,10 +150,8 @@ export async function dislikeMessagePayload(messageId) {
 function sendMessageHandler(e) {
   e.preventDefault();
   const text = messageInput.value;
-  sendMessage(text);
+  sendMessagePayload(text);
   messageInput.value = "";
 }
 
 sendMsgBtn.addEventListener("click", sendMessageHandler);
-
-
