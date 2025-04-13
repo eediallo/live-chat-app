@@ -82,6 +82,7 @@ h1{
     cursor: pointer;
     text-decoration: none;
     gap: 10px;
+    width: 50%
 }
 
 .start-chat-btn img {
