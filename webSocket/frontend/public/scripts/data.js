@@ -4,7 +4,6 @@ import { render } from "./render.js";
 import { updatePaginationControls } from "./render.js";
 import { getToken } from "./storage.js";
 
-const baseUrl = "http://localhost:3000/api/v1";
 
 function decodeToken(token) {
   const payloadBase64 = token.split(".")[1];
@@ -17,7 +16,7 @@ export const userInfo = decodeToken(token);
 
 export async function fetchAllMessagesForAllUsers(page, limit = 5) {
   try {
-    const url = `${baseUrl}/messages/all?page=${page}&limit=${limit}`;
+    const url = `${state.baseUrl}/messages/all?page=${page}&limit=${limit}`;
     const resp = await fetch(url);
     if (!resp.ok) {
       throw new Error(`Failed to fetch messages: ${resp.status}`);
@@ -44,7 +43,9 @@ export async function fetchAllMessagesForAllUsers(page, limit = 5) {
 
 async function fetchMessageReactions(messages) {
   for (let message of messages) {
-    const reactionsResp = await fetch(`${baseUrl}/reactions/${message._id}`);
+    const reactionsResp = await fetch(
+      `${state.baseUrl}/reactions/${message._id}`
+    );
 
     if (reactionsResp.ok) {
       const { likesCount, dislikesCount, likedBy, dislikedBy } =
@@ -64,7 +65,7 @@ async function fetchMessageReactions(messages) {
 
 export async function fetchTotalNumberOfPages() {
   try {
-    const url = `${baseUrl}/messages/all?limit=5`;
+    const url = `${state.baseUrl}/messages/all?limit=5`;
     const resp = await fetch(url);
     let data;
     try {

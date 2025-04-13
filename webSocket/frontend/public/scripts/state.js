@@ -8,4 +8,5 @@ export const state = {
   likes: [],
   dislikes: [],
   isSocket: false,
+  baseUrl: "http://localhost:3000/api/v1",
 };
