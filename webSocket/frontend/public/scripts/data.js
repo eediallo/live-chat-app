@@ -61,3 +61,31 @@ async function fetchMessageReactions(messages) {
     }
   }
 }
+
+export async function fetchTotalNumberOfPages() {
+  try {
+    const url = `${baseUrl}/messages/all?limit=5`;
+    const resp = await fetch(url);
+    let data;
+    try {
+      data = await resp.json();
+    } catch (e) {
+      throw new Error("Failed to parse JSON response: " + e.message);
+    }
+
+    if (!resp.ok) {
+      console.error(`Failed to fetch total pages: ${resp.status}`);
+      errorMsgEl.textContent = data.msg || "An error occurred.";
+      paginationControlsEl.style.display = "none";
+      return;
+    }
+
+    const { numOfPages } = data;
+    errorMsgEl.style.display = "none";
+    return numOfPages;
+  } catch (e) {
+    errorMsgEl.textContent = e.message || "An unexpected error occurred.";
+    paginationControlsEl.style.display = "none";
+    console.error("Error fetching total pages or messages:", e);
+  }
+}

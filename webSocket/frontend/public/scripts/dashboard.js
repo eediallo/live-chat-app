@@ -7,7 +7,7 @@ import {
   onlineUsersEl,
 } from "./domQueries.js";
 import { state } from "./state.js";
-import { fetchAllMessagesForAllUsers, userInfo, token } from "./data.js";
+import { fetchAllMessagesForAllUsers, userInfo, token, fetchTotalNumberOfPages } from "./data.js";
 import {
   render,
   showJoinMessageDialog,
@@ -15,7 +15,6 @@ import {
 } from "./render.js";
 
 let socket = new WebSocket(`ws:localhost:3000/${token}`);
-const baseUrl = "http://localhost:3000";
 
 socket.onopen = async () => {
   usernameEl.textContent = `${userInfo.name}`; // display name of connected user
@@ -24,26 +23,8 @@ socket.onopen = async () => {
 
   try {
     // Fetch the total number of pages first
-    const url = `${baseUrl}/api/v1/messages/all?limit=5`;
-    const resp = await fetch(url);
-    let data;
-    try {
-      data = await resp.json();
-    } catch (e) {
-      throw new Error("Failed to parse JSON response: " + e.message);
-    }
-
-    if (!resp.ok) {
-      console.error(`Failed to fetch total pages: ${resp.status}`);
-      errorMsgEl.textContent = data.msg || "An error occurred.";
-      paginationControlsEl.style.display = "none";
-      return;
-    }
-
-    const { numOfPages } = data;
-    state.pagination.totalPages = numOfPages;
-    errorMsgEl.style.display = "none";
-
+    const totalPages = await fetchTotalNumberOfPages();
+    state.pagination.totalPages = totalPages;
     // Fetch the last page of messages
     await fetchAllMessagesForAllUsers(state.pagination.totalPages);
     render();
