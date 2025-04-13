@@ -6,7 +6,12 @@ import {
 } from "./domQueries.js";
 import { state } from "./state.js";
 import { fetchAllMessagesForAllUsers, userInfo } from "./data.js";
-import { likeMessagePayload, dislikeMessagePayload } from "./chat.js";
+import {
+  likeMessagePayload,
+  dislikeMessagePayload,
+  editMessagePayload,
+  deleteMessagePayload,
+} from "./chat.js";
 
 function createAndAppendElToContainer(tag, className, content, container) {
   const element = createDOMElement(tag, content);
@@ -129,7 +134,48 @@ function createMessageCard(message) {
     render();
   });
 
-  li.append(sender, time, text, likeButton, dislikeButton);
+  // Edit Button
+  const editButton = createDOMElement("button", "✏️ Edit");
+  editButton.classList.add("edit-btn");
+  editButton.addEventListener("click", () => {
+    const newMessage = prompt("Edit your message:", message.message);
+    if (newMessage && newMessage.trim() !== "") {
+      message.message = newMessage.trim();
+      // Update the server with the edited message
+      editMessagePayload(message._id, newMessage.trim());
+      render();
+    }
+  });
+
+  // Delete Button
+  const deleteButton = createDOMElement("button", "🗑️ Delete");
+  deleteButton.classList.add("delete-btn");
+  deleteButton.addEventListener("click", () => {
+    if (message.sender.id === userInfo.id) {
+      const confirmDelete = confirm(
+        "Are you sure you want to delete this message?"
+      );
+      if (confirmDelete) {
+        // Remove the message from the state
+        state.messages = state.messages.filter((m) => m._id !== message._id);
+        // Update the server to delete the message
+        deleteMessagePayload(message._id);
+        render();
+      }
+    } else {
+      alert("You can only delete your own messages.");
+    }
+  });
+
+  li.append(
+    sender,
+    time,
+    text,
+    likeButton,
+    dislikeButton,
+    editButton,
+    deleteButton
+  );
   return li;
 }
 
