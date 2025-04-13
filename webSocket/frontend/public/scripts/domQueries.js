@@ -9,6 +9,11 @@ const usernameEl = document.querySelector("#username");
 const paginationControlsEl = document.querySelector("#pagination-controls");
 const onlineUsersEl = document.querySelector("#online-users");
 const totalMembersEl = document.querySelector("#total-members");
+const loginBtn = document.getElementById("login-btn");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const msgEl = document.getElementById("msg");
+const logoutBtn = document.querySelector("#logout-btn");
 
 export {
   sendMsgBtn,
@@ -22,4 +27,9 @@ export {
   paginationControlsEl,
   onlineUsersEl,
   totalMembersEl,
+  loginBtn,
+  emailInput,
+  passwordInput,
+  msgEl,
+  logoutBtn,
 };
