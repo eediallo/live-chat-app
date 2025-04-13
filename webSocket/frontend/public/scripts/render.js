@@ -69,6 +69,10 @@ export function updateMessageReactionsUI(data) {
 }
 
 function createMessageCard(message) {
+  // Ensure likedBy and dislikedBy are initialized
+  message.likedBy = message.likedBy || [];
+  message.dislikedBy = message.dislikedBy || [];
+
   const li = document.createElement("li");
   li.classList.add("message");
   li.setAttribute("data-message-id", message._id);
@@ -80,6 +84,12 @@ function createMessageCard(message) {
   });
 
   const time = createDOMElement("i", ` ${timestamp}`);
+  if (message.updatedAt && message.updatedAt !== message.createdAt) {
+    const editedIndicator = createDOMElement("span", " (edited)");
+    editedIndicator.classList.add("edited-indicator");
+    time.appendChild(editedIndicator);
+  }
+
   const sender = createDOMElement("b", message.sender.name);
   const text = createDOMElement("p", message.message);
 
@@ -138,12 +148,16 @@ function createMessageCard(message) {
   const editButton = createDOMElement("button", "✏️ Edit");
   editButton.classList.add("edit-btn");
   editButton.addEventListener("click", () => {
-    const newMessage = prompt("Edit your message:", message.message);
-    if (newMessage && newMessage.trim() !== "") {
-      message.message = newMessage.trim();
-      // Update the server with the edited message
-      editMessagePayload(message._id, newMessage.trim());
-      render();
+    if (message.sender.id === userInfo.id) {
+      const newText = prompt("Edit your message:", message.message);
+      if (newText && newText.trim() !== "") {
+        message.message = newText.trim();
+        // Update the server with the edited message
+        editMessagePayload(message._id, newText.trim());
+        render();
+      }
+    } else {
+      alert("You can only edit your own messages.");
     }
   });
 
