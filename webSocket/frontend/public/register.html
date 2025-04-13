@@ -1,23 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script type="module" src="./scripts/register.js" defer></script>
-    <link rel="stylesheet" href="./styles/register.css">
+    <link rel="stylesheet" href="./styles/register.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
     <title>Register</title>
-</head>
-<body>
-    <form class="registration-form" action="">
-        <h2>Register</h2>
-        <input type="text" id="name" name="name" placeholder="name" required>
-        <input type="email" id="email" name="email" placeholder="Email" required>
-        <input type="password" id="password" name="password" placeholder="Password" required>
-        <button id="register-btn" type="submit">Register</button>
-    </form>
-    <p id="msg"></p>
-    <p>
-        Already have an account? <a href="./login.html">Login here</a>
-    </p>
-</body>
+  </head>
+  <body>
+    <div class="registration-container">
+      <a href="/"><img src="./images/logo.png" alt="" /></a>
+      <form class="registration-form" action="">
+        <p>Please enter your details to sign up.</p>
+        <div>
+          <label for="username">Username: </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="name"
+            required
+          />
+        </div>
+        <div>
+          <label for="email">Email: </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Email"
+            required
+          />
+        </div>
+        <div>
+          <label for="password">Password: </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Password"
+            required
+          />
+        </div>
+        <button id="register-btn" type="submit">Sign up</button>
+      </form>
+      <p id="msg"></p>
+      <p>
+        Already have an account?
+        <a class="login" href="./login.html">Login here</a>
+      </p>
+    </div>
+  </body>
 </html>

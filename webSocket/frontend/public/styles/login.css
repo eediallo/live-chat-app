@@ -11,6 +11,10 @@ body {
     background-color: #FAFAFB;
 }
 
+p{
+    text-align: center;
+}
+
 form{
     padding: 10px
 }
@@ -54,4 +58,13 @@ form{
     width: 100px;
     display: block;
     margin: 0   auto;
+}
+
+#msg{
+    color: red;
+}
+
+.sign-up{
+    text-decoration: none;
+    color: rgb(72, 168, 72);;
 }
