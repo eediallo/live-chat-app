@@ -6,7 +6,7 @@ import {
 } from "./domQueries.js";
 import { state } from "./state.js";
 import { fetchAllMessagesForAllUsers, userInfo } from "./data.js";
-import { likeMessagePayload, dislikeMessagePayload } from "./dashboard.js";
+import { likeMessagePayload, dislikeMessagePayload } from "./chat.js";
 
 function createAndAppendElToContainer(tag, className, content, container) {
   const element = createDOMElement(tag, content);

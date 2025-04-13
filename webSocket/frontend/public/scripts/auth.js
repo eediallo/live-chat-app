@@ -30,7 +30,7 @@ const login = async (e) => {
       return;
     }
     setToken(token);
-    window.location.href = "/dashboard.html";
+    window.location.href = "/chat.html";
   } catch (error) {
     console.error("An error occurred:", error);
     msgEl.innerText = "An error occurred. Please try again later.";
