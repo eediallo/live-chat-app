@@ -3,7 +3,7 @@ import { Dislike } from "../models/dislike.js";
 import { User } from "../models/user.js";
 import { Message } from "../models/message.js";
 
- const saveMsgToDb = async (data) => {
+const saveMsgToDb = async (data) => {
   const { sender, text, createdAt } = data;
   const username = sender.name;
 
@@ -40,7 +40,7 @@ import { Message } from "../models/message.js";
   }
 };
 
- const saveReactionToDb = async (
+const saveReactionToDb = async (
   reactionData,
   userId,
   ReactionModel,
@@ -81,13 +81,13 @@ import { Message } from "../models/message.js";
 };
 
 // Wrapper functions for like and dislike
- const saveLikeToDb = (likeData, userId) =>
+const saveLikeToDb = (likeData, userId) =>
   saveReactionToDb(likeData, userId, Like, Dislike, "like");
 
- const saveDislikeToDb = (dislikeData, userId) =>
+const saveDislikeToDb = (dislikeData, userId) =>
   saveReactionToDb(dislikeData, userId, Dislike, Like, "dislike");
 
- const getMessageReactionCounts = async (messageId) => {
+const getMessageReactionCounts = async (messageId) => {
   try {
     const [likes, dislikes] = await Promise.all([
       Like.countDocuments({ messageId }),
@@ -100,6 +100,28 @@ import { Message } from "../models/message.js";
   }
 };
 
+const deleteMessage = async (messageId, userId) => {
+  try {
+    // Find the message to ensure it exists and was sent by the user
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return { error: "Message not found." };
+    }
+
+    if (message.sender.id.toString() !== userId) {
+      return { error: "You can only delete messages you have sent." };
+    }
+
+    // Delete the message
+    await Message.deleteOne({ _id: messageId });
+
+    return { message: "Message deleted successfully." };
+  } catch (error) {
+    console.error("Error deleting message", error);
+    return { error: "An error occurred while deleting the message." };
+  }
+};
 
 export const handleIncomingMessages = async (message, ws, userConnection) => {
   const dataString = message.toString();
@@ -120,6 +142,7 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
         }
         const likesCounts = await getMessageReactionCounts(messageId);
         return { ...result._doc, type: "like", ...likesCounts };
+
       case "dislike":
         result = await saveDislikeToDb(data, userId);
         if (result.error) {
@@ -130,6 +153,14 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
         const dislikesCounts = await getMessageReactionCounts(messageId);
         return { ...result._doc, type: "dislike", ...dislikesCounts };
 
+      case "delete":
+        result = await deleteMessage(messageId, userId);
+        if (result.error) {
+          // Send the error message only to the concerned user
+          ws.send(JSON.stringify({ type: "error", message: result.error }));
+          return;
+        }
+        break;
       default:
         const { _doc: message } = await saveMsgToDb(data);
         return { ...message, type: "message" };
