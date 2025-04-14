@@ -28,9 +28,8 @@ function decodeToken(token) {
 wss.on("connection", async (ws, req) => {
   console.log("New client connected");
 
-  clients.add(ws)
-  broadcastNumberOfClients()
-
+  clients.add(ws);
+  broadcastNumberOfClients();
 
   const token = req.url.split("/")[1];
   const userInfo = decodeToken(token);
@@ -53,11 +52,7 @@ wss.on("connection", async (ws, req) => {
   }
   // handle messages from clients
   ws.on("message", async (message) => {
-    const newMessage = await handleClientMessage(
-      message,
-      ws,
-      userConnection
-    );
+    const newMessage = await handleClientMessage(message, ws, userConnection);
     if (newMessage) {
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
@@ -71,21 +66,21 @@ wss.on("connection", async (ws, req) => {
   ws.on("close", () => {
     console.log("Client disconnected");
     userConnection.delete(ws);
-    clients.delete(ws); 
+    clients.delete(ws);
     broadcastNumberOfClients();
   });
 });
 
 wss.on("error", (error) => {
   console.error("WebSocket error:", error);
-  broadcastNumberOfClients()
+  broadcastNumberOfClients();
 });
 
 function broadcastNumberOfClients() {
   const numberOfClients = clients.size;
   console.log("Number of connected users:", numberOfClients);
 
-  // If you want to let all connected users know the count, you can do this:
+  // broadcast number of connected users to all connected users.
   clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(
@@ -102,7 +97,12 @@ const publicDir = new URL("../frontend/public", import.meta.url).pathname;
 //middleware
 app.use(cors()); // use cors
 app.use(express.json()); //parse json
-app.use(express.static(publicDir)); // serve static files
+
+app.get("/", (req, resp) => {
+  resp.send(` <h1>Live Chat App</h1>
+    <a href="./api/v1/messages/all">Get All messages</a><br>
+    <a href="./api/v1/reactions">Get All reactions</a><br>`);
+});
 
 app.use("/api/v1/messages", messageRouter);
 app.use("/api/v1/auth", authRouter);
