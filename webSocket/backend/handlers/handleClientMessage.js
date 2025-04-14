@@ -116,7 +116,9 @@ const deleteMessage = async (messageId, userId) => {
     // Delete the message
     await Message.deleteOne({ _id: messageId });
 
-    return { message: "Message deleted successfully." };
+    console.log(message, "DELETED MESSAGE");
+
+    return { deletedMessage: message };
   } catch (error) {
     console.error("Error deleting message", error);
     return { error: "An error occurred while deleting the message." };
@@ -183,6 +185,7 @@ export const handleClientMessage = async (message, ws, userConnection) => {
           sendErrorResponse(ws, result);
           return;
         }
+        return { ...result.deletedMessage._doc, type: "delete" };
         break;
 
       case "edit":
@@ -212,7 +215,6 @@ export const handleClientMessage = async (message, ws, userConnection) => {
     );
   }
 };
-
 
 function sendErrorResponse(ws, result) {
   ws.send(JSON.stringify({ type: "error", message: result.error }));
