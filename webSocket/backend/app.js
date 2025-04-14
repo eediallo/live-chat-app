@@ -10,7 +10,7 @@ dotenv.config();
 import { notFound } from "./middleware/notFound.js";
 import { errorHandlerMiddleware } from "./middleware/errorHandler.js";
 import { reactionRouter } from "./routes/reaction.js";
-import { handleClientMessage } from "./handlers/handleIncomingMessages.js";
+import { handleClientMessage } from "./handlers/handleClientMessage.js";
 const app = express();
 const server = http.createServer(app);
 
