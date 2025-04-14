@@ -1,3 +1,4 @@
+import { redirectIfNotAuthenticated } from "./auth.js";
 import {
   sendMsgBtn,
   messageInput,
@@ -20,6 +21,7 @@ import {
   updatePaginationControls,
 } from "./render.js";
 
+redirectIfNotAuthenticated();
 
 let socket = new WebSocket(
   `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io/${token}`
