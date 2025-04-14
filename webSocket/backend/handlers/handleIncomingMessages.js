@@ -147,7 +147,7 @@ const editMessage = async (messageId, userId, newText) => {
   }
 };
 
-export const handleIncomingMessages = async (message, ws, userConnection) => {
+export const handleClientMessage = async (message, ws, userConnection) => {
   const dataString = message.toString();
 
   try {
@@ -203,7 +203,7 @@ export const handleIncomingMessages = async (message, ws, userConnection) => {
         };
     }
   } catch (error) {
-    console.error("Error handling incoming message", error);
+    console.error("Error handling client message", error);
     ws.send(
       JSON.stringify({
         type: "error",

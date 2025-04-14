@@ -10,7 +10,7 @@ dotenv.config();
 import { notFound } from "./middleware/notFound.js";
 import { errorHandlerMiddleware } from "./middleware/errorHandler.js";
 import { reactionRouter } from "./routes/reaction.js";
-import { handleIncomingMessages } from "./handlers/handleIncomingMessages.js";
+import { handleClientMessage } from "./handlers/handleIncomingMessages.js";
 const app = express();
 const server = http.createServer(app);
 
@@ -53,7 +53,7 @@ wss.on("connection", async (ws, req) => {
   }
   // handle messages from clients
   ws.on("message", async (message) => {
-    const newMessage = await handleIncomingMessages(
+    const newMessage = await handleClientMessage(
       message,
       ws,
       userConnection
