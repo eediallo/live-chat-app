@@ -25,15 +25,7 @@ function decodeToken(token) {
 }
 
 //middleware
-// app.use(cors()); // use cors
-app.use(
-  cors({
-    origin:
-      "https://eediallo-chat-server-auth-frontend.hosting.codeyourfuture.io/chat.html",
-    credentials: true,
-  })
-);
-
+app.use(cors()); // use cors
 app.use(express.json()); //parse json
 
 // wss connection event
