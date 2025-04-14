@@ -13,6 +13,7 @@ import {
   userInfo,
   token,
   fetchTotalNumberOfPages,
+  fetchTotalMembers
 } from "./data.js";
 import {
   render,
@@ -34,6 +35,7 @@ socket.onopen = async () => {
 
   try {
     // Fetch the total number of pages first
+    await fetchTotalMembers();
     const totalPages = await fetchTotalNumberOfPages();
     state.pagination.totalPages = totalPages;
     // Fetch the last page of messages

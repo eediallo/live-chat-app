@@ -1,5 +1,5 @@
 import { state } from "./state.js";
-import { errorMsgEl } from "./domQueries.js";
+import { errorMsgEl, totalMembersEl } from "./domQueries.js";
 import { render } from "./render.js";
 import { updatePaginationControls } from "./render.js";
 import { getToken } from "./storage.js";
@@ -88,5 +88,20 @@ export async function fetchTotalNumberOfPages() {
     errorMsgEl.textContent = e.message || "An unexpected error occurred.";
     paginationControlsEl.style.display = "none";
     console.error("Error fetching total pages or messages:", e);
+  }
+}
+
+export async function fetchTotalMembers() {
+  try {
+    const { data, msg } = await axios.get(`${state.baseUrl}/auth/users_number`);
+    if (msg) {
+      const errorMessage = msg || "Failed to fetch number of users";
+      errorMsgEl.textContent = errorMessage;
+      return;
+    }
+
+    totalMembersEl.textContent = data;
+  } catch (e) {
+    console.error("An error has occurred: ", e);
   }
 }
