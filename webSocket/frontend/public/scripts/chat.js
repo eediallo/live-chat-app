@@ -20,7 +20,9 @@ import {
   updatePaginationControls,
 } from "./render.js";
 
-let socket = new WebSocket(`ws:localhost:3000/${token}`);
+let socket = new WebSocket(
+  `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io//${token}`
+);
 
 socket.onopen = async () => {
   usernameEl.textContent = `${userInfo.name}`; // display name of connected user
