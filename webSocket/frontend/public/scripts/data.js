@@ -3,7 +3,7 @@ import { errorMsgEl } from "./domQueries.js";
 import { render } from "./render.js";
 import { updatePaginationControls } from "./render.js";
 import { getToken } from "./storage.js";
-
+import { paginationControlsEl } from "./domQueries.js";
 
 function decodeToken(token) {
   const payloadBase64 = token.split(".")[1];
