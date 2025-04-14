@@ -24,6 +24,10 @@ function decodeToken(token) {
   return JSON.parse(decodedPayload);
 }
 
+//middleware
+app.use(cors()); // use cors
+app.use(express.json()); //parse json
+
 // wss connection event
 wss.on("connection", async (ws, req) => {
   console.log("New client connected");
@@ -91,10 +95,6 @@ function broadcastNumberOfClients() {
 }
 
 const port = process.env.PORT || 3000;
-
-//middleware
-app.use(cors()); // use cors
-app.use(express.json()); //parse json
 
 app.get("/", (req, resp) => {
   resp.send(` <h1>Live Chat App</h1>
