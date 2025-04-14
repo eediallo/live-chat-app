@@ -76,7 +76,18 @@ socket.onmessage = (evt) => {
     case "edit":
       const messageIndex = state.messages.findIndex((m) => m._id === data._id);
       if (messageIndex !== -1) {
-        state.messages[messageIndex] = { ...state.messages[messageIndex], ...data };
+        state.messages[messageIndex] = {
+          ...state.messages[messageIndex],
+          ...data,
+        };
+      }
+      render();
+      break;
+
+    case "delete":
+      const msgIndex = state.messages.findIndex((m) => m._id === data._id);
+      if (msgIndex !== -1) {
+        state.messages[msgIndex] = { ...state.messages.slice(msgIndex, 1) };
       }
       render();
       break;
