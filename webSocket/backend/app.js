@@ -92,8 +92,6 @@ function broadcastNumberOfClients() {
 
 const port = process.env.PORT || 3000;
 
-const publicDir = new URL("../frontend/public", import.meta.url).pathname;
-
 //middleware
 app.use(cors()); // use cors
 app.use(express.json()); //parse json
