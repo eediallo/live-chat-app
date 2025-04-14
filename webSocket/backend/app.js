@@ -35,7 +35,7 @@ wss.on("connection", async (ws, req) => {
   clients.add(ws);
   broadcastNumberOfClients();
 
-  const token = req.url.split("/")[1];
+  const token = req.url.split("=")[1];
   const userInfo = decodeToken(token);
   const { id, name } = userInfo;
   try {

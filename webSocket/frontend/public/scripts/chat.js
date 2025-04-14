@@ -13,7 +13,7 @@ import {
   userInfo,
   token,
   fetchTotalNumberOfPages,
-  fetchTotalMembers
+  fetchTotalMembers,
 } from "./data.js";
 import {
   render,
@@ -25,7 +25,7 @@ import {
 redirectIfNotAuthenticated();
 
 let socket = new WebSocket(
-  `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io/${token}`
+  `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io/?token=${token}`
 );
 
 socket.onopen = async () => {
