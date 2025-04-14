@@ -9,7 +9,7 @@ paths:
     get:
       tags:
         - General
-      summary: Get all messages for all users
+      summary: get 5 last messages, total messages, and number of pages
       responses:
         '200':
           description: Successful response
