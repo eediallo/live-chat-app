@@ -116,8 +116,6 @@ const deleteMessage = async (messageId, userId) => {
     // Delete the message
     await Message.deleteOne({ _id: messageId });
 
-    console.log(message, "DELETED MESSAGE");
-
     return { deletedMessage: message };
   } catch (error) {
     console.error("Error deleting message", error);
