@@ -61,6 +61,11 @@ export function redirectIfNotAuthenticated() {
   }
 }
 
+// Redirect unauthenticated users from chat.html
+if (window.location.pathname === "/chat.html") {
+  redirectIfNotAuthenticated();
+}
+
 function logout() {
   removeToken();
   window.location.href = "/login.html";
