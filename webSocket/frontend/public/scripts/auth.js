@@ -11,7 +11,7 @@ import {
 import { state } from "./state.js";
 import { getToken, setToken, removeToken } from "./storage.js";
 
-const register = async (e) => {
+const registerUser = async (e) => {
   e.preventDefault();
   const name = nameInput.value;
   const email = emailInput.value;
@@ -50,10 +50,10 @@ const register = async (e) => {
 };
 
 if (registerBtn) {
-  registerBtn.addEventListener("click", register);
+  registerBtn.addEventListener("click", registerUser);
 }
 
-const login = async (e) => {
+const loginUser = async (e) => {
   e.preventDefault();
   try {
     const email = emailInput.value;
@@ -83,7 +83,7 @@ const login = async (e) => {
 };
 
 if (loginBtn) {
-  loginBtn.addEventListener("click", login);
+  loginBtn.addEventListener("click", loginUser);
 }
 
 // check user authentication
