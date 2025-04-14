@@ -73,6 +73,14 @@ socket.onmessage = (evt) => {
       onlineUsersEl.textContent = data.count;
       break;
 
+    case "edit":
+      const messageIndex = state.messages.findIndex((m) => m._id === data._id);
+      if (messageIndex !== -1) {
+        state.messages[messageIndex] = { ...state.messages[messageIndex], ...data };
+      }
+      render();
+      break;
+
     case "error":
       alert(data.message); // Display the error message to the user
       break;
