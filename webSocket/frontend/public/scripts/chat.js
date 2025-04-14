@@ -17,6 +17,7 @@ import {
   render,
   showJoinMessageDialog,
   updateMessageReactionsUI,
+  updatePaginationControls,
 } from "./render.js";
 
 let socket = new WebSocket(`ws:localhost:3000/${token}`);
@@ -90,6 +91,7 @@ socket.onmessage = (evt) => {
         state.messages[msgIndex] = { ...state.messages.slice(msgIndex, 1) };
       }
       render();
+      updatePaginationControls();
       break;
 
     case "error":

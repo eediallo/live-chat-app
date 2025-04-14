@@ -1,0 +1,13 @@
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 0;
+  width: 1200px;
+  margin: 0 auto;
+  background-color: #fafafb;
+  font-family: "Manrope", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
