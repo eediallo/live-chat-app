@@ -1,0 +1,84 @@
+openapi: 3.0.0
+info:
+  title: Live-Chat-APP-Final
+  version: 1.0.0
+servers:
+  - url: https://eediallo-chat-server-auth.hosting.codeyourfuture.io/api/v1
+paths:
+  /messages/all:
+    get:
+      tags:
+        - General
+      summary: Get all messages for all users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /auth/register:
+    post:
+      tags:
+        - General
+      summary: Register user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: kadiatou
+                email: kadiatou@gmail.com
+                password: Kadiatou98@
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /auth/login:
+    post:
+      tags:
+        - General
+      summary: Login user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: mariam@gmail.com
+                password: Mariam98@
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /reactions:
+    get:
+      tags:
+        - General
+      summary: get all reactions
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /reactions/67fa7c6b0c0d3e68821aa382:
+    get:
+      tags:
+        - General
+      summary: get message reactions
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /auth/users_number:
+    get:
+      tags:
+        - General
+      summary: get number of of users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

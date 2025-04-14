@@ -11,6 +11,9 @@ import { notFound } from "./middleware/notFound.js";
 import { errorHandlerMiddleware } from "./middleware/errorHandler.js";
 import { reactionRouter } from "./routes/reaction.js";
 import { handleClientMessage } from "./handlers/handleClientMessage.js";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUiExpress from "swagger-ui-express";
+import { StatusCodes } from "http-status-codes";
 const app = express();
 const server = http.createServer(app);
 
@@ -27,6 +30,33 @@ function decodeToken(token) {
 //middleware
 app.use(cors()); // use cors
 app.use(express.json()); //parse json
+
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Live Chat Application",
+      version: "1.0.0",
+      description:
+        "Thi app allows users to chat from any place at any time without interruption.",
+    },
+    servers: [
+      {
+        url: "https://eediallo-chat-server-auth.hosting.codeyourfuture.io/api/v1",
+      },
+    ],
+  },
+  apis: ["./collection.yml"], // Path to the API docs
+};
+
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+app.use(
+  "/api-docs",
+  swaggerUiExpress.serve,
+  swaggerUiExpress.setup(swaggerSpec)
+);
 
 // wss connection event
 wss.on("connection", async (ws, req) => {
@@ -96,10 +126,12 @@ function broadcastNumberOfClients() {
 
 const port = process.env.PORT || 3000;
 
-app.get("/", (req, resp) => {
-  resp.send(` <h1>Live Chat App</h1>
-    <a href="./api/v1/messages/all">Get All messages</a><br>
-    <a href="./api/v1/reactions">Get All reactions</a><br>`);
+app.get("/", (req, res) => {
+  res
+    .status(StatusCodes.OK)
+    .send(
+      '<h1>Live Chat application</h1><a href="/api-docs">Access Documentation here</a>'
+    );
 });
 
 app.use("/api/v1/messages", messageRouter);
