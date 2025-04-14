@@ -4,7 +4,7 @@ import cors from "cors";
 import { connectDB } from "./db/db.js";
 import { messageRouter } from "./routes/messages.js";
 import { authRouter } from "./routes/auth.js";
-import { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import http from "http";
 dotenv.config();
 import { notFound } from "./middleware/notFound.js";
