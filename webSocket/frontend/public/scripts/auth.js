@@ -55,6 +55,12 @@ export function isAuthenticated() {
   }
 }
 
+export function redirectIfNotAuthenticated() {
+  if (!isAuthenticated()) {
+    window.location.href = "/login.html";
+  }
+}
+
 function logout() {
   removeToken();
   window.location.href = "/login.html";

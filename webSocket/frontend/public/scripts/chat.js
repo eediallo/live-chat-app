@@ -20,6 +20,11 @@ import {
   updatePaginationControls,
 } from "./render.js";
 
+import { redirectIfNotAuthenticated } from "./auth.js";
+
+// Redirect unauthenticated users
+redirectIfNotAuthenticated();
+
 let socket = new WebSocket(
   `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io/${token}`
 );
