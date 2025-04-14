@@ -29,7 +29,7 @@ function decodeToken(token) {
 app.use(
   cors({
     origin:
-      "https://eediallo-chat-server-auth-frontend.hosting.codeyourfuture.io",
+      "https://eediallo-chat-server-auth-frontend.hosting.codeyourfuture.io/chat.html",
     credentials: true,
   })
 );
