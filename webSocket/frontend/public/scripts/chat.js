@@ -21,7 +21,7 @@ import {
 } from "./render.js";
 
 let socket = new WebSocket(
-  `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io//${token}`
+  `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io/${token}`
 );
 
 socket.onopen = async () => {
