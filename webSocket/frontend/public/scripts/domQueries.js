@@ -14,6 +14,9 @@ const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const msgEl = document.getElementById("msg");
 const logoutBtn = document.querySelector("#logout-btn");
+const nameInput = document.getElementById("name");
+const registerBtn = document.getElementById("register-btn");
+const errMsgEl = document.getElementById("errorMsg");
 
 export {
   sendMsgBtn,
@@ -32,4 +35,7 @@ export {
   passwordInput,
   msgEl,
   logoutBtn,
+  nameInput,
+  registerBtn,
+  errMsgEl
 };

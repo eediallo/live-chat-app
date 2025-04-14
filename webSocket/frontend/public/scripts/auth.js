@@ -4,9 +4,54 @@ import {
   passwordInput,
   msgEl,
   logoutBtn,
+  registerBtn,
+  nameInput,
+  errMsgEl,
 } from "./domQueries.js";
 import { state } from "./state.js";
 import { getToken, setToken, removeToken } from "./storage.js";
+
+const register = async (e) => {
+  e.preventDefault();
+  const name = nameInput.value;
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  const body = { name, email, password };
+
+  try {
+    const response = await fetch(`${state.baseUrl}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Display the error message from the server if available
+      const errorMessage = data.msg || "Registration failed. Please try again.";
+      errMsgEl.textContent = errorMessage;
+      errMsgEl.style.color = "red";
+      return;
+    }
+
+    errMsgEl.textContent = "Your account has been successfully created.";
+    errMsgEl.style.color = "green";
+    setToken(data.token);
+    setTimeout(() => {
+      window.location.href = "/login.html";
+    }, 500);
+  } catch (error) {
+    console.error("Error occurred:", error);
+    errMsgEl.textContent = "An unexpected error occurred. Please try again.";
+  }
+};
+
+if (registerBtn) {
+  registerBtn.addEventListener("click", register);
+}
 
 const login = async (e) => {
   e.preventDefault();
