@@ -1,163 +1,186 @@
-body{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 800px;
-    margin: 0 auto;
-    font-family: "Manrope", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 200;
-    font-style: normal;
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 800px;
+  margin: 0 auto;
+  font-family: "Manrope", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
 }
 
-.logo{
-    width: 100px;
-    height: auto;
+.logo {
+  width: 100px;
+  height: auto;
 }
 
-#logout-btn{
-    background-color: rgb(82, 188, 82);
+#logout-btn {
+  background-color: rgb(82, 188, 82);
 }
 
-#logout-btn:hover{
-    background-color: rgb(72, 168, 72);
+#logout-btn:hover {
+  background-color: rgb(72, 168, 72);
 }
 
-
-
-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-form{
-    display: flex;
-    justify-content: center;
-    margin: 20px 0
+form {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
 }
 
-input{
-    padding: 10px;
-    width: 300px;
+input {
+  padding: 10px;
+  width: 300px;
 }
 
 #send-msg-btn {
-    background-color: rgb(82, 188, 82);
-    color: white;
-    padding: 10px;
-    border: none;
+  background-color: rgb(82, 188, 82);
+  color: white;
+  padding: 10px;
+  border: none;
 }
 
 .message {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    list-style: none;
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  list-style: none;
 }
 
-
 .date-header {
-    text-align: center;
-    display: flex;
-    align-items: center;
+  text-align: center;
+  display: flex;
+  align-items: center;
 }
 
 .date-header::before,
 .date-header::after {
-    content: "";
-    flex: 1;
-    border-top: 1px solid #ccc;
-    margin: 0 10px;
+  content: "";
+  flex: 1;
+  border-top: 1px solid #ccc;
+  margin: 0 10px;
 }
 
-
-.members-info{
-    display: flex;
-    gap: 20px;
+.members-info {
+  display: flex;
+  gap: 20px;
 }
-
-
 
 #pagination-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 
-#prev-page-btn, #next-page-btn {
-    background-color: rgb(82, 188, 82);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 0 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
+#prev-page-btn,
+#next-page-btn {
+  background-color: rgb(82, 188, 82);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
 }
 
-#prev-page-btn:disabled, #next-page-btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+#prev-page-btn:disabled,
+#next-page-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-#prev-page-btn:hover:not(:disabled), #next-page-btn:hover:not(:disabled) {
-    background-color: rgb(72, 168, 72);
+#prev-page-btn:hover:not(:disabled),
+#next-page-btn:hover:not(:disabled) {
+  background-color: rgb(72, 168, 72);
 }
 
 #page-info {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
 }
 
 .date-header {
-    text-align: center;
-    display: flex;
-    align-items: center;
+  text-align: center;
+  display: flex;
+  align-items: center;
 }
 
 .date-header::before,
 .date-header::after {
-    content: "";
-    flex: 1;
-    border-top: 1px solid #ccc;
-    margin: 0 10px;
+  content: "";
+  flex: 1;
+  border-top: 1px solid #ccc;
+  margin: 0 10px;
 }
 
 /* Style the dialog box for join messages */
 dialog {
-    border: none;
-    border-radius: 8px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    font-size: 16px;
-    color: #333;
-    text-align: center;
+  border: none;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  color: #333;
+  text-align: center;
 }
 
 dialog button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background-color: rgb(82, 188, 82);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: rgb(82, 188, 82);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
 }
 
 dialog button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
-#errorMsg{
-    color: red;
-    font-weight: 24px;
-    text-align: center;
+#errorMsg {
+  color: red;
+  font-weight: 24px;
+  text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  #send-msg-btn {
+    width: 100%;
+  }
 }

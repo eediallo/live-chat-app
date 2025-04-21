@@ -86,3 +86,58 @@ h1 {
 .start-chat-btn:hover {
   background-color: rgb(72, 168, 72);
 }
+
+@media screen and (max-width: 1024px) {
+  body {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  header {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  header .middle-section{
+    display: none;
+  }
+
+  .hero-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .start-chat-btn {
+    width: 50%;
+    display: block;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  body {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  header {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  header .middle-section{
+    display: none;
+  }
+
+  .hero-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .start-chat-btn {
+    width: 50%;
+    display: block;
+  }
+}
