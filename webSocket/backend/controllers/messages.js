@@ -84,9 +84,7 @@ export const deleteMessage = asyncWrapper(async (req, res) => {
     sender: userID,
   });
   if (!message) {
-    return res
-      .status(StatusCodes.NOT_FOUND)
-      .json({ msg: `No message with Id ${msgID} found` });
+    throw new NotFound(`No message with Id ${msgID} found`);
   }
   res.status(StatusCodes.OK).send();
 });
