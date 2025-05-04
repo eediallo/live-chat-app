@@ -8,6 +8,7 @@ import { StatusCodes } from "http-status-codes";
 vi.mock("../middleware/auth", () => ({
   authenticateUser: vi.fn((req, _, next) => {
     req.user = { id: "938383", name: "Mick" }; // Mock authenticated user
+    req.params = { id: "999" }; // mock message
     next();
   }),
 }));
@@ -81,5 +82,37 @@ describe("createMessage()", () => {
 
     expect(response.status).toBe(StatusCodes.BAD_REQUEST);
     expect(response.body).toHaveProperty("msg", "Message must be provided.");
+  });
+});
+
+describe("getMessage()", () => {
+  let mockFindOne;
+
+  beforeEach(() => {
+    mockFindOne = vi.spyOn(Message, "findOne");
+  });
+
+  afterEach(() => {
+    mockFindOne.mockRestore();
+  });
+
+  it(`should return message with id and ${StatusCodes.OK} status`, async () => {
+    const user = { userID: "938383", name: "Mick" };
+    const messageData = { msgID: "999" };
+    const foundMessage = {
+      _id: messageData.msgID,
+      sender: user.userID,
+      message: "Hello",
+    };
+
+    mockFindOne.mockResolvedValue(foundMessage);
+
+    const response = await request(app)
+      .get(`/api/v1/messages/${messageData.msgID}`)
+      .set("Authorization", "Bearer valid-token");
+
+    expect(response.status).toBe(StatusCodes.OK);
+    expect(response.body).toHaveProperty("message");
+    expect(response.body.message).toMatchObject(foundMessage);
   });
 });
