@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 import { asyncWrapper } from "../middleware/async.js";
-
+import { BadRequest } from "../errors/badRequestError.js";
 export const getAllMessagesForAllUsers = asyncWrapper(async (req, res) => {
   const { page = 1, limit = 5 } = req.query;
 
@@ -28,12 +28,18 @@ export const getAllMessagesForAllUsers = asyncWrapper(async (req, res) => {
 
 export const createMessage = asyncWrapper(async (req, res) => {
   const { userID, name } = req.user;
+  const { message } = req.body;
+
+  if (!message || message.trim() === "") {
+    throw new BadRequest("Message must be provided.");
+  }
+
   req.body.sender = { id: userID, name };
-  const message = await Message.create(req.body);
+  const createdMessage = await Message.create(req.body);
 
   res
     .status(StatusCodes.CREATED)
-    .json({ msg: "Message created successfully", message });
+    .json({ msg: "Message created successfully", message: createdMessage });
 });
 
 export const getAllMessages = asyncWrapper(async (req, res) => {
