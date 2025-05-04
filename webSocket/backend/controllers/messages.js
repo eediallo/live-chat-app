@@ -2,6 +2,8 @@ import { StatusCodes } from "http-status-codes";
 import { Message } from "../models/message.js";
 import { asyncWrapper } from "../middleware/async.js";
 import { BadRequest } from "../errors/badRequestError.js";
+import { NotFound } from "../errors/notFoundError.js";
+
 export const getAllMessagesForAllUsers = asyncWrapper(async (req, res) => {
   const { page = 1, limit = 5 } = req.query;
 
@@ -63,12 +65,12 @@ export const getMessage = asyncWrapper(async (req, res) => {
     user: { userID },
     params: { id: msgID },
   } = req;
+
   const message = await Message.findOne({ _id: msgID, sender: userID });
   if (!message) {
-    return res
-      .status(StatusCodes.NOT_FOUND)
-      .json({ msg: `No message with Id ${msgID} found` });
+    throw new NotFound(`No message with Id ${msgID} found`);
   }
+
   res.status(StatusCodes.OK).json({ message });
 });
 
