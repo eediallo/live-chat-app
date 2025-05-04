@@ -4,10 +4,9 @@ import app from "../app";
 
 import { Message } from "../models/message";
 import { StatusCodes } from "http-status-codes";
-import { createMessage } from "../controllers/messages";
 
 vi.mock("../middleware/auth", () => ({
-  authenticateUser: vi.fn((req, res, next) => {
+  authenticateUser: vi.fn((req, _, next) => {
     req.user = { id: "938383", name: "Mick" }; // Mock authenticated user
     next();
   }),
@@ -45,13 +44,14 @@ describe("createMessage()", () => {
     expect(response.body.message).toMatchObject(createdMessage);
   });
 
-  it(`should return ${StatusCodes.INTERNAL_SERVER_ERROR} status`, async () => {
+  it(`should return ${StatusCodes.INTERNAL_SERVER_ERROR} status if there is a server error`, async () => {
     const user = { userID: "938383", name: "Mick" };
+
     const messageData = { message: "Hello" };
     const createdMessage = {
-        ...user,
-        messageData
-    }
+      sender: { id: user.userID, name: user.name },
+      message: messageData.message,
+    };
 
     createMock.mockRejectedValue(new Error("Database error"));
 
@@ -61,5 +61,25 @@ describe("createMessage()", () => {
       .send(createdMessage);
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+  });
+
+  it(`should return ${StatusCodes.BAD_REQUEST} status if required field is message`, async () => {
+    const user = { userID: "938383", name: "Mick" };
+
+    const messageData = { message: "" };
+    const createdMessage = {
+      sender: { id: user.userID, name: user.name },
+      message: messageData.message,
+    };
+
+    createMock.mockRejectedValue(createdMessage);
+
+    const response = await request(app)
+      .post("/api/v1/messages")
+      .set("Authorization", "Bearer valid-token")
+      .send(createdMessage);
+
+    expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+    expect(response.body).toHaveProperty("msg", "Message must be provided.");
   });
 });
