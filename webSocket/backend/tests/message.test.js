@@ -4,6 +4,7 @@ import app from "../app";
 
 import { Message } from "../models/message";
 import { StatusCodes } from "http-status-codes";
+import { createMessage } from "../controllers/messages";
 
 vi.mock("../middleware/auth", () => ({
   authenticateUser: vi.fn((req, res, next) => {
@@ -42,5 +43,23 @@ describe("createMessage()", () => {
     expect(response.body).toHaveProperty("msg", "Message created successfully");
     expect(response.body).toHaveProperty("message");
     expect(response.body.message).toMatchObject(createdMessage);
+  });
+
+  it(`should return ${StatusCodes.INTERNAL_SERVER_ERROR} status`, async () => {
+    const user = { userID: "938383", name: "Mick" };
+    const messageData = { message: "Hello" };
+    const createdMessage = {
+        ...user,
+        messageData
+    }
+
+    createMock.mockRejectedValue(new Error("Database error"));
+
+    const response = await request(app)
+      .post("/api/v1/messages")
+      .set("Authorization", "Bearer valid-token")
+      .send(createdMessage);
+
+    expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
   });
 });
