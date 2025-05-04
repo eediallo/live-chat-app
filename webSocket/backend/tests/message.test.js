@@ -115,4 +115,21 @@ describe("getMessage()", () => {
     expect(response.body).toHaveProperty("message");
     expect(response.body.message).toMatchObject(foundMessage);
   });
+
+  it(`should return ${StatusCodes.NOT_FOUND} if no message is found`, async () => {
+    const user = { userID: "938383", name: "Mick" };
+    const messageData = { msgID: "999" };
+
+    mockFindOne.mockResolvedValue(null); // Simulate no message found
+
+    const response = await request(app)
+      .get(`/api/v1/messages/${messageData.msgID}`)
+      .set("Authorization", "Bearer valid-token");
+
+    expect(response.status).toBe(StatusCodes.NOT_FOUND);
+    expect(response.body).toHaveProperty(
+      "msg",
+      `No message with Id ${messageData.msgID} found`
+    );
+  });
 });
