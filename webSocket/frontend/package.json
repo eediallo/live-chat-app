@@ -2,12 +2,13 @@
   "name": "live-chat-frontend",
   "scripts": {
     "start": "http-server",
-    "test": "vitest"
+    "test": "vitest --run --reporter verbose"
   },
   "devDependencies": {
     "vitest": "^3.1.2"
   },
   "dependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "jsonwebtoken": "^9.0.2"
   }
 }
