@@ -1,3 +1,5 @@
+import { token } from "./data.js";
+
 export const state = {
   messages: [],
   name: null,
@@ -10,3 +12,7 @@ export const state = {
   isSocket: false,
   baseUrl: "https://eediallo-chat-server-auth.hosting.codeyourfuture.io/api/v1",
 };
+
+export let socket = new WebSocket(
+  `wss://eediallo-chat-server-auth.hosting.codeyourfuture.io/?token=${token}`
+);
