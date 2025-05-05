@@ -4,12 +4,7 @@ import { render } from "./render.js";
 import { updatePaginationControls } from "./render.js";
 import { getToken } from "./storage.js";
 import { paginationControlsEl } from "./domQueries.js";
-
-function decodeToken(token) {
-  const payloadBase64 = token.split(".")[1];
-  const decodedPayload = atob(payloadBase64);
-  return JSON.parse(decodedPayload);
-}
+import { decodeToken } from "./decodeToken.js";
 
 export const token = getToken();
 export const userInfo = decodeToken(token);
