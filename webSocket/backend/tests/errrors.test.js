@@ -1,5 +1,16 @@
 import { vi, expect, it, describe } from "vitest";
-import { BadRequest, NotFound } from "../errors/index";
+import { BadRequest, NotFound, CustomAPIError } from "../errors/index";
+
+describe("CustomAPIError", () => {
+  it("should contain message and statusCode provided", () => {
+    const statusCode = 500;
+    const message = "Something went wrong. Please try again later";
+    const customAPIError = new CustomAPIError(message, statusCode);
+
+    expect(customAPIError.statusCode).toBe(statusCode);
+    expect(customAPIError.message).toBe(message);
+  });
+});
 
 describe("BadRequestError", () => {
   it("should contain message and statusCode provided", () => {
@@ -12,7 +23,6 @@ describe("BadRequestError", () => {
   });
 });
 
-
 describe("NotFoundError", () => {
   it("should contain message and statusCode provided", () => {
     const statusCode = 404;
@@ -20,6 +30,6 @@ describe("NotFoundError", () => {
     const notFoundError = new NotFound(message, statusCode);
 
     expect(notFoundError.statusCode).toBe(statusCode);
-    expect( notFoundError.message).toBe(message);
+    expect(notFoundError.message).toBe(message);
   });
 });
