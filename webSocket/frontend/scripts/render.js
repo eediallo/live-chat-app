@@ -9,10 +9,9 @@ import { fetchAllMessagesForAllUsers, userInfo } from "./data.js";
 import {
   likeMessagePayload,
   dislikeMessagePayload,
-  editMessagePayload,
   deleteMessagePayload,
-} from "./chat.js";
-
+  editMessagePayload,
+} from "./payloads.js";
 function createAndAppendElToContainer(tag, className, content, container) {
   const element = createDOMElement(tag, content);
   element.classList.add(className);
@@ -223,17 +222,21 @@ export function updatePaginationControls() {
     state.pagination.currentPage === state.pagination.totalPages;
 }
 
-prevPageBtn.addEventListener("click", () => {
-  if (state.isSocket && state.pagination.currentPage > 1) {
-    fetchAllMessagesForAllUsers(state.pagination.currentPage - 1);
-  }
-});
+if (prevPageBtn) {
+  prevPageBtn.addEventListener("click", () => {
+    if (state.isSocket && state.pagination.currentPage > 1) {
+      fetchAllMessagesForAllUsers(state.pagination.currentPage - 1);
+    }
+  });
+}
 
-nextPageBtn.addEventListener("click", () => {
-  if (
-    state.isSocket &&
-    state.pagination.currentPage < state.pagination.totalPages
-  ) {
-    fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
-  }
-});
+if (nextPageBtn) {
+  nextPageBtn.addEventListener("click", () => {
+    if (
+      state.isSocket &&
+      state.pagination.currentPage < state.pagination.totalPages
+    ) {
+      fetchAllMessagesForAllUsers(state.pagination.currentPage + 1);
+    }
+  });
+}
