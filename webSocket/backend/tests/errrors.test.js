@@ -1,7 +1,7 @@
 import { vi, expect, it, describe } from "vitest";
 import { BadRequest, NotFound, CustomAPIError } from "../errors/index";
 
-describe("CustomAPIError", () => {
+describe.concurrent("CustomAPIError", () => {
   it("should contain message and statusCode provided", () => {
     const statusCode = 500;
     const message = "Something went wrong. Please try again later";
@@ -12,7 +12,7 @@ describe("CustomAPIError", () => {
   });
 });
 
-describe("BadRequestError", () => {
+describe.concurrent("BadRequestError", () => {
   it("should contain message and statusCode provided", () => {
     const statusCode = 400;
     const message = "Message is required";
@@ -23,7 +23,7 @@ describe("BadRequestError", () => {
   });
 });
 
-describe("NotFoundError", () => {
+describe.concurrent("NotFoundError", () => {
   it("should contain message and statusCode provided", () => {
     const statusCode = 404;
     const message = "Message not found";
