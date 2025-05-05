@@ -17,7 +17,7 @@
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
-        "test": "vitest --run verbose"
+        "test": "vitest --run --reporter verbose"
     },
     "devDependencies": {
         "nodemon": "^3.1.9",
