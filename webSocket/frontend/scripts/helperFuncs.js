@@ -4,6 +4,9 @@ export function createAndAppendElToContainer(
   content,
   container
 ) {
+  if (!tag || !className || !content || !container) {
+    throw new Error("All arguments are required.");
+  }
   const element = createDOMElement(tag, content);
   element.classList.add(className);
   container.append(element);
