@@ -11,7 +11,6 @@ import { state } from "./state.js";
 import {
   fetchAllMessagesForAllUsers,
   userInfo,
-  token,
   fetchTotalNumberOfPages,
   fetchTotalMembers,
 } from "./data.js";
@@ -20,7 +19,7 @@ import {
   showJoinMessageDialog,
   updateMessageReactionsUI,
   updatePaginationControls,
-} from "./render.js";
+} from "./ui.js";
 import { socket } from "./state.js";
 
 redirectIfNotAuthenticated();

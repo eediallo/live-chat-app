@@ -1,7 +1,7 @@
 import { state } from "./state.js";
 import { errorMsgEl, totalMembersEl } from "./domQueries.js";
-import { render } from "./render.js";
-import { updatePaginationControls } from "./render.js";
+import { render } from "./ui.js";
+import { updatePaginationControls } from "./ui.js";
 import { getToken } from "./storage.js";
 import { paginationControlsEl } from "./domQueries.js";
 import { decodeToken } from "./decodeToken.js";

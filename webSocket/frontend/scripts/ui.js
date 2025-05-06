@@ -12,17 +12,7 @@ import {
   deleteMessagePayload,
   editMessagePayload,
 } from "./payloads.js";
-function createAndAppendElToContainer(tag, className, content, container) {
-  const element = createDOMElement(tag, content);
-  element.classList.add(className);
-  container.append(element);
-}
-
-export function createDOMElement(tag, content) {
-  const element = document.createElement(tag, content);
-  element.textContent = content;
-  return element;
-}
+import { createDOMElement, createAndAppendElToContainer } from "./helperFuncs.js";
 
 //display  join message in a dialog box
 export function showJoinMessageDialog(message) {
@@ -91,8 +81,25 @@ function createMessageCard(message) {
 
   const sender = createDOMElement("b", message.sender.name);
   const text = createDOMElement("p", message.message);
+  
+  const likeButton = createLikeButton(message);
+  const dislikeButton = createDislikeButton(message);
+  const editButton = createEditButton(message);
+  const deleteButton = createDeleteButton(message);
 
-  // Like Button
+  li.append(
+    sender,
+    time,
+    text,
+    likeButton,
+    dislikeButton,
+    editButton,
+    deleteButton
+  );
+  return li;
+}
+
+function createLikeButton(message) {
   const likeButton = createDOMElement("button", `👍 ${message.likes || 0}`);
   likeButton.classList.add("like-btn");
   likeButton.addEventListener("click", () => {
@@ -115,8 +122,51 @@ function createMessageCard(message) {
     }
     render();
   });
+  return likeButton;
+}
 
-  // Dislike Button
+function createDeleteButton(message) {
+  const deleteButton = createDOMElement("button", "🗑️ Delete");
+  deleteButton.classList.add("delete-btn");
+  deleteButton.addEventListener("click", () => {
+    if (message.sender.id === userInfo.id) {
+      const confirmDelete = confirm(
+        "Are you sure you want to delete this message?"
+      );
+      if (confirmDelete) {
+        // Remove the message from the state
+        state.messages = state.messages.filter((m) => m._id !== message._id);
+        // Update the server to delete the message
+        deleteMessagePayload(message._id);
+        render();
+      }
+    } else {
+      alert("You can only delete your own messages.");
+    }
+  });
+  return deleteButton;
+}
+
+function createEditButton(message) {
+  const editButton = createDOMElement("button", "✏️ Edit");
+  editButton.classList.add("edit-btn");
+  editButton.addEventListener("click", () => {
+    if (message.sender.id === userInfo.id) {
+      const newText = prompt("Edit your message:", message.message);
+      if (newText && newText.trim() !== "") {
+        message.message = newText.trim();
+        // Update the server with the edited message
+        editMessagePayload(message._id, newText.trim());
+        render();
+      }
+    } else {
+      alert("You can only edit your own messages.");
+    }
+  });
+  return editButton;
+}
+
+function createDislikeButton(message) {
   const dislikeButton = createDOMElement(
     "button",
     `👎 ${message.dislikes || 0}`
@@ -142,62 +192,16 @@ function createMessageCard(message) {
     }
     render();
   });
-
-  // Edit Button
-  const editButton = createDOMElement("button", "✏️ Edit");
-  editButton.classList.add("edit-btn");
-  editButton.addEventListener("click", () => {
-    if (message.sender.id === userInfo.id) {
-      const newText = prompt("Edit your message:", message.message);
-      if (newText && newText.trim() !== "") {
-        message.message = newText.trim();
-        // Update the server with the edited message
-        editMessagePayload(message._id, newText.trim());
-        render();
-      }
-    } else {
-      alert("You can only edit your own messages.");
-    }
-  });
-
-  // Delete Button
-  const deleteButton = createDOMElement("button", "🗑️ Delete");
-  deleteButton.classList.add("delete-btn");
-  deleteButton.addEventListener("click", () => {
-    if (message.sender.id === userInfo.id) {
-      const confirmDelete = confirm(
-        "Are you sure you want to delete this message?"
-      );
-      if (confirmDelete) {
-        // Remove the message from the state
-        state.messages = state.messages.filter((m) => m._id !== message._id);
-        // Update the server to delete the message
-        deleteMessagePayload(message._id);
-        render();
-      }
-    } else {
-      alert("You can only delete your own messages.");
-    }
-  });
-
-  li.append(
-    sender,
-    time,
-    text,
-    likeButton,
-    dislikeButton,
-    editButton,
-    deleteButton
-  );
-  return li;
+  return dislikeButton;
 }
 
+
+// render messages
 export function render() {
   messageContainer.innerHTML = "";
 
   let currentDate = null;
   state.messages.forEach((message) => {
-    //console.log(message, "message in render");
     const messageDate = new Date(message.createdAt).toLocaleDateString();
 
     if (messageDate !== currentDate) {
@@ -215,6 +219,8 @@ export function render() {
   });
 }
 
+
+// pagination control
 export function updatePaginationControls() {
   pageInfo.textContent = `Page ${state.pagination.currentPage} of ${state.pagination.totalPages}`;
   prevPageBtn.disabled = state.pagination.currentPage === 1;
@@ -222,6 +228,8 @@ export function updatePaginationControls() {
     state.pagination.currentPage === state.pagination.totalPages;
 }
 
+
+// previous button event
 if (prevPageBtn) {
   prevPageBtn.addEventListener("click", () => {
     if (state.isSocket && state.pagination.currentPage > 1) {
@@ -230,6 +238,8 @@ if (prevPageBtn) {
   });
 }
 
+
+// next button event
 if (nextPageBtn) {
   nextPageBtn.addEventListener("click", () => {
     if (
