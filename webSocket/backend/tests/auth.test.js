@@ -4,7 +4,7 @@ import request from "supertest";
 import { User } from "../models/user";
 import { StatusCodes } from "http-status-codes";
 
-describe("RegisterUser", () => {
+describe.concurrent("RegisterUser", () => {
   let createMock;
 
   beforeEach(() => {
@@ -47,5 +47,20 @@ describe("RegisterUser", () => {
       .send(user);
 
     expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+  });
+
+  it(`should return ${StatusCodes.INTERNAL_SERVER_ERROR} status if server error occurs during user creation`, async () => {
+    createMock.mockResolvedValue(new Error("Database error"));
+    const user = {
+      name: "Daniel",
+      email: "daniel@gmail.com",
+      password: "Secret98$",
+    };
+
+    const response = await request(app)
+      .post("/api/v1/auth/register")
+      .send(user);
+
+    expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
   });
 });
