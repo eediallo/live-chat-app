@@ -135,3 +135,42 @@ describe("loginUser", () => {
     expect(response.body).toHaveProperty("token");
   });
 });
+
+describe("getNumberOfUsers", () => {
+  let countDocumentsMock;
+
+  beforeEach(() => {
+    countDocumentsMock = vi.spyOn(User, "countDocuments");
+  });
+
+  afterEach(() => {
+    countDocumentsMock.mockRestore();
+  });
+
+  it(`should return ${StatusCodes.NOT_FOUND} status if no user if found`, async () => {
+    const users = [];
+    countDocumentsMock.mockResolvedValue(users.length);
+
+    const response = await request(app).get("/api/v1/auth/users_number");
+
+    expect(response.status).toBe(StatusCodes.NOT_FOUND);
+  });
+
+  it(`should return number of users with ${StatusCodes.OK} status code`, async () => {
+    const users = [
+      { name: "daniel", email: "daniel@gmail.com", password: "password98$" },
+      { name: "ousmane", email: "ousmane@gmail.com", password: "password98$" },
+      { name: "donara", email: "donara@gmail.com", password: "password98$" },
+      { name: "nadika", email: "nadika@gmail.com", password: "password98$" },
+      { name: "elhadj", email: "elhadj@gmail.com", password: "password98$" },
+      { name: "fatim", email: "fatim@gmail.com", password: "password98$" },
+    ];
+
+    countDocumentsMock.mockResolvedValue(users.length);
+
+    const response = await request(app).get("/api/v1/auth/users_number");
+
+    expect(response.status).toBe(StatusCodes.OK);
+    expect(response.body).toBe(users.length);
+  });
+});
