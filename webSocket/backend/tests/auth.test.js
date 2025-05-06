@@ -94,4 +94,17 @@ describe("loginUser", () => {
 
     expect(response.status).toBe(StatusCodes.BAD_REQUEST);
   });
+
+  it(`should return ${StatusCodes.INTERNAL_SERVER_ERROR} status if error occurs in the server while login user`, async () => {
+    mockFindOne.mockRejectedValue(new Error("Database error"));
+
+    const user = {
+      email: "daniel@gmail.com",
+      password: "secret98$",
+    };
+
+    const response = await request(app).post("/api/v1/auth/login").send(user);
+
+    expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+  });
 });
