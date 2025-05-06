@@ -13,7 +13,7 @@ const document = window.document;
 document.write(htmlDocumentContent);
 vi.stubGlobal("document", document);
 
-const loginBtn = document.getElementById("login-btn");
+let loginBtn = document.getElementById("login-btn");
 
 describe("loginBtn", () => {
   it("should execute loginUser function when loginBtn is clicked", () => {
@@ -24,5 +24,10 @@ describe("loginBtn", () => {
     loginBtn.click();
 
     expect(loginUser).toHaveBeenCalled();
+  });
+
+  it("should yield null if loginBtn is not available", () => {
+    loginBtn = null;
+    expect(loginBtn).toBeNull();
   });
 });
