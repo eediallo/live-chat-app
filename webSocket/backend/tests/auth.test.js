@@ -110,5 +110,9 @@ describe("loginUser", () => {
     const response = await request(app).post("/api/v1/auth/login").send(user);
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+    expect(response.body).toHaveProperty(
+      "msg",
+      "Something went wrong, please try again later."
+    );
   });
 });
