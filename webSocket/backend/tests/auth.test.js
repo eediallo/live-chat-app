@@ -4,7 +4,7 @@ import request from "supertest";
 import { User } from "../models/user";
 import { StatusCodes } from "http-status-codes";
 
-describe.concurrent("RegisterUser", () => {
+describe("RegisterUser", () => {
   let createMock;
 
   beforeEach(() => {
