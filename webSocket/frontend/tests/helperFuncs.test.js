@@ -30,21 +30,29 @@ describe("createDOMElement()", () => {
 });
 
 describe("createAndAppendElToContainer()", () => {
-    it("should create a paragraph with content 'Hello, World!' and append it to a div", () => {
-        const tag = "p";
-        const content = "Hello, World!";
-        const className = "pa";
-        const container = document.createElement("div");
+  it("should create a paragraph with content 'Hello, World!' and append it to a div", () => {
+    const tag = "p";
+    const content = "Hello, World!";
+    const className = "pa";
+    const container = document.createElement("div");
 
-        createAndAppendElToContainer(tag, className, content, container);
+    createAndAppendElToContainer(tag, className, content, container);
 
-        const paragraph = container.querySelector(`.${className}`);
+    const paragraph = container.querySelector(`.${className}`);
 
-        expect(paragraph).not.toBeNull();
-        expect(paragraph.tagName.toLowerCase()).toBe(tag);
-        expect(paragraph.textContent).toBe(content);
-        expect(container.contains(paragraph)).toBe(true);
-    });
+    expect(paragraph).not.toBeNull();
+    expect(paragraph.tagName.toLowerCase()).toBe(tag);
+    expect(paragraph.textContent).toBe(content);
+    expect(container.contains(paragraph)).toBe(true);
+  });
 
-    
+  it("should throw an error if at least one argument is not provided", () => {
+    const content = "Hello, World!";
+    const className = "pa";
+    const container = document.createElement("div");
+
+    const resultFn = () =>
+      createAndAppendElToContainer(className, content, container);
+    expect(resultFn).toThrow();
+  });
 });
