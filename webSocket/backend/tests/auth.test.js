@@ -4,6 +4,14 @@ import request from "supertest";
 import { User } from "../models/user";
 import { StatusCodes } from "http-status-codes";
 
+vi.mock("../middleware/auth", () => ({
+  authenticateUser: vi.fn((req, _, next) => {
+    req.user = { id: "938383", name: "Mick" }; // Mock authenticated user
+    req.params = { id: "999" }; // mock message
+    next();
+  }),
+}));
+
 describe("RegisterUser", () => {
   let createMock;
 
@@ -62,5 +70,28 @@ describe("RegisterUser", () => {
       .send(user);
 
     expect(response.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
+  });
+});
+
+describe("loginUser", () => {
+  let mockFindOne;
+
+  beforeEach(() => {
+    mockFindOne = vi.spyOn(User, "findOne");
+  });
+
+  afterEach(() => {
+    mockFindOne.mockRestore();
+  });
+
+  it(`should return ${StatusCodes.BAD_REQUEST} if at least one required filed is missing`, async () => {
+    const user = {
+      email: "daniel@gmail.com",
+      password: "",
+    };
+
+    const response = await request(app).post("/api/v1/auth/login").send(user);
+
+    expect(response.status).toBe(StatusCodes.BAD_REQUEST);
   });
 });
