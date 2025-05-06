@@ -1,5 +1,9 @@
-import { vi, it, describe, expect } from "vitest";
-import { likeMessagePayload, dislikeMessagePayload } from "../scripts/payloads";
+import { vi, it, describe, expect, beforeEach } from "vitest";
+import {
+  likeMessagePayload,
+  dislikeMessagePayload,
+  deleteMessagePayload,
+} from "../scripts/payloads";
 
 const socket = {
   send: vi.fn(),
@@ -11,6 +15,10 @@ vi.mock("../scripts/payloads", () => ({
   },
   dislikeMessagePayload: (messageId) => {
     socket.send(JSON.stringify({ type: "dislike", messageId }));
+  },
+
+  deleteMessagePayload: (messageId) => {
+    socket.send(JSON.stringify({ type: "delete", messageId }));
   },
 }));
 
@@ -29,7 +37,17 @@ describe("dislikeMessagePayload()", () => {
     const messageId = 123;
     dislikeMessagePayload(messageId);
     expect(socket.send).toHaveBeenCalledWith(
-      JSON.stringify({ type: "like", messageId })
+      JSON.stringify({ type: "dislike", messageId })
+    );
+  });
+});
+
+describe("deleteMessagePayload()", () => {
+  it("should send delete message with id 123", () => {
+    const messageId = 123;
+    deleteMessagePayload(messageId);
+    expect(socket.send).toHaveBeenCalledWith(
+      JSON.stringify({ type: "delete", messageId })
     );
   });
 });
