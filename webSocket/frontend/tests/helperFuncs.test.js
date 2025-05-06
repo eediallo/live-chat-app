@@ -1,5 +1,8 @@
 import { it, describe, expect, vi } from "vitest";
-import { createDOMElement } from "../scripts/helperFuncs";
+import {
+  createAndAppendElToContainer,
+  createDOMElement,
+} from "../scripts/helperFuncs";
 
 describe("createDOMElement()", () => {
   it("should create a paragraph with content 'Hello, World!'", () => {
@@ -24,4 +27,24 @@ describe("createDOMElement()", () => {
     const resultFn = () => createDOMElement();
     expect(resultFn).toThrow();
   });
+});
+
+describe("createAndAppendElToContainer()", () => {
+    it("should create a paragraph with content 'Hello, World!' and append it to a div", () => {
+        const tag = "p";
+        const content = "Hello, World!";
+        const className = "pa";
+        const container = document.createElement("div");
+
+        createAndAppendElToContainer(tag, className, content, container);
+
+        const paragraph = container.querySelector(`.${className}`);
+
+        expect(paragraph).not.toBeNull();
+        expect(paragraph.tagName.toLowerCase()).toBe(tag);
+        expect(paragraph.textContent).toBe(content);
+        expect(container.contains(paragraph)).toBe(true);
+    });
+
+    
 });
