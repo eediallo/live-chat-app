@@ -35,4 +35,17 @@ describe("RegisterUser", () => {
     expect(response.status).toBe(StatusCodes.CREATED);
     expect(response.body).toHaveProperty("token");
   });
+
+  it(`should return ${StatusCodes.BAD_REQUEST} if at least one required field is not provided`, async () => {
+    const user = {
+      name: "Daniel",
+      email: "daniel@gmail.com",
+    };
+
+    const response = await request(app)
+      .post("/api/v1/auth/register")
+      .send(user);
+
+    expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+  });
 });
