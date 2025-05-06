@@ -7,7 +7,12 @@ import { paginationControlsEl } from "./domQueries.js";
 import { decodeToken } from "./decodeToken.js";
 
 export const token = getToken();
-export const userInfo = decodeToken(token);
+let userInfo;
+if (token) {
+  userInfo = decodeToken(token);
+}
+
+export { userInfo };
 
 export async function fetchAllMessagesForAllUsers(page, limit = 5) {
   try {
