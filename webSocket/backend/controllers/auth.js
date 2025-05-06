@@ -1,35 +1,27 @@
 import { User } from "../models/user.js";
 import StatusCodes from "http-status-codes";
+import { asyncWrapper } from "../middleware/async.js";
+import { BadRequest } from "../errors/badRequestError.js";
+import { UnauthenticatedError } from "../errors/unauthorizedError.js";
 
-const login = async (req, res) => {
+const login = asyncWrapper(async (req, res) => {
   const { email, password } = req.body;
   if (email === "" || password === "") {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ msg: "Email and password are required" });
+    throw new BadRequest("Email and password are required");
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new UnauthenticatedError("Invalid credentials");
   }
 
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ msg: "Invalid credentials" });
-    }
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ msg: "Invalid credentials" });
-    }
-    const token = user.createJWT();
-    res.status(StatusCodes.OK).json({ token });
-  } catch (e) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Something went wrong. Please try again later" });
+  const isMatch = await user.matchPassword(password);
+  if (!isMatch) {
+    throw new UnauthenticatedError("Invalid credentials");
   }
-};
+
+  const token = user.createJWT();
+  res.status(StatusCodes.OK).json({ token });
+});
 
 const register = async (req, res) => {
   try {
