@@ -4,14 +4,6 @@ import request from "supertest";
 import { User } from "../models/user";
 import { StatusCodes } from "http-status-codes";
 
-vi.mock("../middleware/auth", () => ({
-  authenticateUser: vi.fn((req, _, next) => {
-    req.user = { id: "938383", name: "Mick" }; // Mock authenticated user
-    req.params = { id: "999" }; // mock message
-    next();
-  }),
-}));
-
 describe("RegisterUser", () => {
   let createMock;
 
