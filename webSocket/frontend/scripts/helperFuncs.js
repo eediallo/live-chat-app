@@ -10,6 +10,9 @@ export function createAndAppendElToContainer(
 }
 
 export function createDOMElement(tag, content) {
+  if (!tag || !content) {
+    throw new Error("Both tag and content are required.");
+  }
   const element = document.createElement(tag, content);
   element.textContent = content;
   return element;
