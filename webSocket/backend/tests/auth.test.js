@@ -93,6 +93,10 @@ describe("loginUser", () => {
     const response = await request(app).post("/api/v1/auth/login").send(user);
 
     expect(response.status).toBe(StatusCodes.BAD_REQUEST);
+    expect(response.body).toHaveProperty(
+      "msg",
+      "Email and password are required"
+    );
   });
 
   it(`should return ${StatusCodes.INTERNAL_SERVER_ERROR} status if error occurs in the server while login user`, async () => {
