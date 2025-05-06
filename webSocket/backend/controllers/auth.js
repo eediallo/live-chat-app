@@ -3,6 +3,7 @@ import StatusCodes from "http-status-codes";
 import { asyncWrapper } from "../middleware/async.js";
 import { BadRequest } from "../errors/badRequestError.js";
 import { UnauthenticatedError } from "../errors/unauthorizedError.js";
+import { NotFound } from "../errors/notFoundError.js";
 
 const login = asyncWrapper(async (req, res) => {
   const { email, password } = req.body;
@@ -41,19 +42,12 @@ const register = async (req, res) => {
   }
 };
 
-export const getNumberOfUsers = async (_, res) => {
-  try {
-    const numberOfUsers = await User.countDocuments();
-    if (!numberOfUsers) {
-      return res.status(StatusCodes.NOT_FOUND).json({ msg: "No users found" });
-    }
-
-    res.status(StatusCodes.OK).json(numberOfUsers);
-  } catch (e) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ msg: "Something went wrong. Please try again later." });
+export const getNumberOfUsers = asyncWrapper(async (_, res) => {
+  const numberOfUsers = await User.countDocuments();
+  if (!numberOfUsers || numberOfUsers.length === 0) {
+    throw new NotFound("No users found");
   }
-};
+  res.status(StatusCodes.OK).json(numberOfUsers);
+});
 
 export { login, register };
