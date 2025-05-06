@@ -6,5 +6,5 @@ export const errorHandlerMiddleware = (err, req, res, next) => {
   }
   return res
     .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .send("Something went wrong try again later");
+    .send({msg: "Something went wrong, please try again later."});
 };
