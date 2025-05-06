@@ -11,12 +11,17 @@ describe("createDOMElement()", () => {
     expect(paragraph.textContent).toBe(content);
   });
 
-  it("should create a button with content login ", () => {
+  it("should create a button with content 'login'", () => {
     const tag = "button";
     const content = "login";
-    const paragraph = createDOMElement(tag, content);
+    const button = createDOMElement(tag, content);
 
-    expect(paragraph.tagName.toLowerCase()).toBe("button");
-    expect(paragraph.textContent).toBe("login");
+    expect(button.tagName.toLowerCase()).toBe(tag);
+    expect(button.textContent).toBe(content);
+  });
+
+  it("should throw an error is tag or content is not provided", () => {
+    const resultFn = () => createDOMElement();
+    expect(resultFn).toThrow();
   });
 });
