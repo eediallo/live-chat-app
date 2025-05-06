@@ -115,4 +115,23 @@ describe("loginUser", () => {
       "Something went wrong, please try again later."
     );
   });
+
+  it(`should login user and return ${StatusCodes.OK} status`, async()=>{
+    const user = {
+      email: "daniel@gmail.com",
+      password: "Secret98$"
+    }
+
+    const token = "mock-jwt-token"
+    mockFindOne.mockResolvedValue({
+      ...user,
+      matchPassword: vi.fn().mockResolvedValue(true),
+      createJWT: vi.fn().mockResolvedValue(token)
+    })
+
+    const response = await request(app).post('/api/v1/auth/login').send(user)
+
+    expect(response.status).toBe(StatusCodes.OK);
+    expect(response.body).toHaveProperty("token")
+  })
 });
