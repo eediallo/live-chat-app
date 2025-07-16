@@ -1,38 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script type="module" src="./scripts/auth.js" defer></script>
-    <link rel="stylesheet" href="./styles/login.css">
+    <link rel="stylesheet" href="./styles/login.css" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
       rel="stylesheet"
     />
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-       <a href="/"><img class="logo" src="./images/logo.png" alt="logo"></a>
-       <p>Please enter your details to login.</p>
-        <p id="msg"></p>
-        <form action="">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="text" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" id="login-btn" class="login-button">Login</button>
-        </form>
-        <p>
-            Don't have an account? <a class="sign-up" href="/register.html">Create account</a>
-        </p>
-    </div></p>
+      <a href="/"><img class="logo" src="./images/logo.png" alt="logo" /></a>
+      <p>Please enter your details to login.</p>
+      <p id="msg"></p>
+      <form action="">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="text" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit" id="login-btn" class="login-button">Login</button>
+      </form>
+      <p>
+        Don't have an account?
+        <a class="sign-up" href="/register.html">Create account</a>
+      </p>
+      <div style="text-align: center; margin-top: 20px">
+        <button id="google-login-btn">
+          <img
+            id="google-img"
+            src="./images/google-icon.svg"
+            alt="Google"
+            style="width: 20px; height: 20px"
+          />
+          Continue with Google
+        </button>
+      </div>
     </div>
-</body>
+    <script src="./scripts/login.js"></script>
+  </body>
 </html>
