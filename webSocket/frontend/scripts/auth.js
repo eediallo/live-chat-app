@@ -8,7 +8,7 @@ import {
   nameInput,
   errMsgEl,
 } from "./domQueries.js";
-import { state } from "./state.js";
+import { state, createSocket } from "./state.js";
 import { getToken, setToken, removeToken } from "./storage.js";
 
 const registerUser = async (e) => {
@@ -75,6 +75,8 @@ const loginUser = async (e) => {
       return;
     }
     setToken(token);
+    // Re-create the WebSocket with the new token
+    window.socket = createSocket();
     window.location.href = "/chat.html";
   } catch (error) {
     console.error("An error occurred:", error);
@@ -104,6 +106,23 @@ export function redirectIfNotAuthenticated() {
   if (!isAuthenticated()) {
     window.location.href = "/login.html";
   }
+}
+
+// Handle Google OAuth redirect and WebSocket creation
+if (
+  (window.location.pathname === "/login.html" ||
+    window.location.pathname === "/register.html") &&
+  window.location.search.includes("google_oauth")
+) {
+  fetch("/api/v1/auth/google/success", { credentials: "include" })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.token) {
+        setToken(data.token);
+        window.socket = createSocket();
+        window.location.href = "/chat.html";
+      }
+    });
 }
 
 // Redirect unauthenticated users from chat.html
