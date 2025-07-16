@@ -14,6 +14,8 @@ import { handleClientMessage } from "./handlers/handleClientMessage.js";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUiExpress from "swagger-ui-express";
 import { StatusCodes } from "http-status-codes";
+import session from "express-session";
+import passport from "./middleware/passport.js";
 const app = express();
 const server = http.createServer(app);
 
@@ -22,14 +24,40 @@ const userConnection = new Map();
 const clients = new Set();
 
 function decodeToken(token) {
-  const payloadBase64 = token.split(".")[1];
-  const decodedPayload = atob(payloadBase64);
-  return JSON.parse(decodedPayload);
+  try {
+    const payloadBase64 = token.split(".")[1];
+    const decodedPayload = Buffer.from(payloadBase64, "base64").toString(
+      "utf-8"
+    );
+    return JSON.parse(decodedPayload);
+  } catch (e) {
+    console.error("Invalid token:", e);
+    return null;
+  }
 }
 
 //middleware
-app.use(cors()); // use cors
+app.use(
+  cors({
+    origin: "http://localhost:8080",
+    credentials: true,
+  })
+); // use cors
 app.use(express.json()); //parse json
+
+// Session middleware (required for passport)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }, // set to true if using https
+  })
+);
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Swagger configuration
 const swaggerOptions = {
@@ -67,6 +95,13 @@ wss.on("connection", async (ws, req) => {
 
   const token = req.url.split("=")[1];
   const userInfo = decodeToken(token);
+  if (!userInfo) {
+    ws.send(
+      JSON.stringify({ type: "error", message: "Invalid or missing token" })
+    );
+    ws.close();
+    return;
+  }
   const { id, name } = userInfo;
   try {
     userConnection.set(ws, { userId: id, username: name });
@@ -154,4 +189,4 @@ const start = async () => {
 
 start();
 
-export default app
+export default app;
