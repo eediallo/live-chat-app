@@ -70,6 +70,23 @@ form {
   color: rgb(72, 168, 72);
 }
 
+#google-login-btn {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: auto;
+}
+
+#google-img {
+  width: 20px;
+  height: 20px;
+}
+
 @media screen and (max-width: 768px) {
   .login-container {
     width: 90%;
