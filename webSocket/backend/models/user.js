@@ -20,19 +20,20 @@ const userSchema = new mongoose.Schema({
 
   password: {
     type: String,
-    required: [true, "Password is required"],
+    required: false, // Not required for Google users
     trim: true,
     minlength: [6, "Password should be more than 6 characters"],
     match: [
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{6,}$/,
       "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     ],
-    unique: true,
+    unique: false,
   },
 });
 
-// Hash the password before saving
+// Hash the password before saving (only if password is set)
 userSchema.pre("save", async function () {
+  if (!this.password) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
